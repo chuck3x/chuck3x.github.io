@@ -1,35 +1,254 @@
-extends includes/layout.pug
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>VLRoute | Clog</title><meta name="author" content="Chuck3x"><meta name="copyright" content="Chuck3x"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="图像处理基础1.数字图像的获取和表示数字图像本质上是光能量的量化记录。 数字图像是通过相机拍摄三维物理世界记录的平面投影，每个像素值$f(x,y)$  物理角度：直接对应于该位置接受到的辐照度(Irradiance)，即单位时间内、单位面积上接受到的光子能量总和。  能量越强，数值越大（越亮）；能量越弱，数值越小（越暗）。  从几何角度：三维世界通过透视投影变成二维平面。在这个过程中，深度信息丢失">
+<meta property="og:type" content="article">
+<meta property="og:title" content="VLRoute">
+<meta property="og:url" content="https://chuck3x.github.io/2025/12/15/VLRoute/index.html">
+<meta property="og:site_name" content="Clog">
+<meta property="og:description" content="图像处理基础1.数字图像的获取和表示数字图像本质上是光能量的量化记录。 数字图像是通过相机拍摄三维物理世界记录的平面投影，每个像素值$f(x,y)$  物理角度：直接对应于该位置接受到的辐照度(Irradiance)，即单位时间内、单位面积上接受到的光子能量总和。  能量越强，数值越大（越亮）；能量越弱，数值越小（越暗）。  从几何角度：三维世界通过透视投影变成二维平面。在这个过程中，深度信息丢失">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://chuck3x.github.io/img/butterfly-icon.png">
+<meta property="article:published_time" content="2025-12-15T07:30:35.000Z">
+<meta property="article:modified_time" content="2025-12-18T14:04:37.200Z">
+<meta property="article:author" content="Chuck3x">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://chuck3x.github.io/img/butterfly-icon.png"><script type="application/ld+json">{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "VLRoute",
+  "url": "https://chuck3x.github.io/2025/12/15/VLRoute/",
+  "image": "https://chuck3x.github.io/img/butterfly-icon.png",
+  "datePublished": "2025-12-15T07:30:35.000Z",
+  "dateModified": "2025-12-18T14:04:37.200Z",
+  "author": [
+    {
+      "@type": "Person",
+      "name": "Chuck3x",
+      "url": "https://chuck3x.github.io"
+    }
+  ]
+}</script><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="https://chuck3x.github.io/2025/12/15/VLRoute/index.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css?v=5.5.3"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@7.1.0/css/all.min.css"><script>
+    (() => {
+      
+    const saveToLocal = {
+      set: (key, value, ttl) => {
+        if (!ttl) return
+        const expiry = Date.now() + ttl * 86400000
+        localStorage.setItem(key, JSON.stringify({ value, expiry }))
+      },
+      get: key => {
+        const itemStr = localStorage.getItem(key)
+        if (!itemStr) return undefined
+        const { value, expiry } = JSON.parse(itemStr)
+        if (Date.now() > expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return value
+      }
+    }
 
-block content
-  #post
-    if top_img === false
-      include includes/header/post-info.pug
+    window.btf = {
+      saveToLocal,
+      getScript: (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        Object.entries(attr).forEach(([key, val]) => script.setAttribute(key, val))
+        script.onload = script.onreadystatechange = () => {
+          if (!script.readyState || /loaded|complete/.test(script.readyState)) resolve()
+        }
+        script.onerror = reject
+        document.head.appendChild(script)
+      }),
+      getCSS: (url, id) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onload = link.onreadystatechange = () => {
+          if (!link.readyState || /loaded|complete/.test(link.readyState)) resolve()
+        }
+        link.onerror = reject
+        document.head.appendChild(link)
+      }),
+      addGlobalFn: (key, fn, name = false, parent = window) => {
+        if (!false && key.startsWith('pjax')) return
+        const globalFn = parent.globalFn || {}
+        globalFn[key] = globalFn[key] || {}
+        globalFn[key][name || Object.keys(globalFn[key]).length] = fn
+        parent.globalFn = globalFn
+      }
+    }
+  
+      
+      const activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      const activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
 
-    article#article-container.container.post-content
-      if theme.noticeOutdate.enable && page.noticeOutdate !== false
-        include includes/post/outdate-notice.pug
-      else
-        !=page.content
-    include includes/post/post-copyright.pug
-    .tag_share
-      if (page.tags.length > 0 && theme.post_meta.post.tags)
-        .post-meta__tag-list
-          each item, index in page.tags.data
-            a(href=url_for(item.path)).post-meta__tags #[=item.name]
-      include includes/third-party/share/index.pug
+      btf.activateDarkMode = activateDarkMode
+      btf.activateLightMode = activateLightMode
 
-    if theme.reward.enable && theme.reward.QR_code
-      !=partial('includes/post/reward', {}, {cache: true})
-
-    //- ad
-    if theme.ad && theme.ad.post
-      .ads-wrap!=theme.ad.post
-
-    if theme.post_pagination
-      include includes/pagination.pug
-    if theme.related_post && theme.related_post.enable
-      != related_posts(page,site.posts)
-
-    if page.comments !== false && theme.comments.use
-      - var commentsJsLoad = true
-      !=partial('includes/third-party/comments/index', {}, {cache: true})
+      const theme = saveToLocal.get('theme')
+    
+          theme === 'dark' ? activateDarkMode() : theme === 'light' ? activateLightMode() : null
+        
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        document.documentElement.classList.toggle('hide-aside', asideStatus === 'hide')
+      }
+    
+      
+    const detectApple = () => {
+      if (/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)) {
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+  
+    })()
+  </script><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false,"highlightFullpage":false,"highlightMacStyle":false},
+  copy: {
+    success: '复制成功',
+    error: '复制失败',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'null',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid@4.12.0/dist/infinitegrid.min.js',
+    buttonText: '加载更多'
+  },
+  isPhotoFigcaption: false,
+  islazyloadPlugin: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'VLRoute',
+  isHighlightShrink: false,
+  isToc: true,
+  pageType: 'post'
+}</script><meta name="generator" content="Hexo 7.3.0"></head><body><div class="post" id="body-wrap"><header class="post-bg" id="page-header"><nav id="nav"><span id="blog-info"><a class="nav-site-title" href="/"><span class="site-name">Clog</span></a><a class="nav-page-title" href="/"><span class="site-name">VLRoute</span><span class="site-name"><i class="fa-solid fa-circle-arrow-left"></i><span>  返回首页</span></span></a></span><div id="menus"></div></nav><div id="post-info"><h1 class="post-title">VLRoute</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2025-12-15T07:30:35.000Z" title="发表于 2025-12-15 15:30:35">2025-12-15</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2025-12-18T14:04:37.200Z" title="更新于 2025-12-18 22:04:37">2025-12-18</time></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title=""><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">浏览量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="container post-content" id="article-container"><h1 id="图像处理基础"><a href="#图像处理基础" class="headerlink" title="图像处理基础"></a>图像处理基础</h1><h2 id="1-数字图像的获取和表示"><a href="#1-数字图像的获取和表示" class="headerlink" title="1.数字图像的获取和表示"></a>1.数字图像的获取和表示</h2><p>数字图像本质上是光能量的量化记录。</p>
+<p>数字图像是通过相机拍摄三维物理世界记录的平面投影，每个像素值$f(x,y)$</p>
+<ul>
+<li><p>物理角度：直接对应于该位置接受到的辐照度(Irradiance)，即单位时间内、单位面积上接受到的光子能量总和。</p>
+</li>
+<li><p>能量越强，数值越大（越亮）；能量越弱，数值越小（越暗）。</p>
+</li>
+<li><p>从几何角度：三维世界通过透视投影变成二维平面。在这个过程中，深度信息丢失了，只保留了光强和色彩信息。</p>
+</li>
+<li><p>具体数值含义：</p>
+</li>
+<li><p>灰度图：像素值通常为0~255（8位），0代表纯黑（无光），255代表纯白（最强光）。</p>
+</li>
+<li><p>彩色图（RGB）：每个像素由三个数值组成（红绿蓝）。比如(255,0,0)代表纯红色。这三个数值分别代表该位置对红光、绿光和蓝光波段能量的相应强度。</p>
+</li>
+</ul>
+<hr>
+<h2 id="2-数码相机成像的ISP管线"><a href="#2-数码相机成像的ISP管线" class="headerlink" title="2.数码相机成像的ISP管线"></a>2.数码相机成像的ISP管线</h2><p>ISP(Image Signal Processing)是指从传感器接受到的原始数据(Raw Data)转变为人眼看着舒服的图像(如JPEG)的过程。</p>
+<ol>
+<li>光电转换(Optical to Electrical):</li>
+</ol>
+<ul>
+<li>动作：镜头聚焦光线 $\rightarrow$ 传感器(Sensor)</li>
+<li>结果：光子转换为电子，形成模拟电压信号。</li>
+</ul>
+<ol start="2">
+<li>模数转换(A&#x2F;D Conversion):</li>
+</ol>
+<ul>
+<li>动作：将模拟电压信号转换为数字信号。</li>
+<li>结果：得到RAW数据。这时候图像通常是黑白的马赛克状(Bayer Pattern)。</li>
+</ul>
+<ol start="3">
+<li>黑电平校正：(Black Level Correction):</li>
+</ol>
+<ul>
+<li>作用：即使没有光，传感器也会有暗电流产生“底噪”。这一步是把这个“底噪”减掉，让黑色真正变成0。</li>
+</ul>
+<ol start="4">
+<li>去马赛克&#x2F;插值(Demosaicing):</li>
+</ol>
+<ul>
+<li>原理：传感器上的每个像素点上面覆盖了滤光片(通常是红、绿、蓝相间，即Bayer阵列)，每个点只知道一种颜色的亮度。</li>
+<li>作用：通过周围像素的颜色，猜出当前像素确实的那两个颜色分量，把单通道的Raw数据补全为三通道的RGB图像。</li>
+</ul>
+<ol start="5">
+<li>白平衡(White Balance&#x2F;AWB):</li>
+</ol>
+<ul>
+<li>作用：消除光源颜色的影响。比如在黄色灯光下，白色物体会发黄。白平衡通过调整RGB的比例，强制让白色物体在图像里看起来就是白色的。</li>
+</ul>
+<ol start="6">
+<li>色彩校正(Color Correction Matrix,CCM):</li>
+</ol>
+<ul>
+<li>作用：传感器的感光特性和人眼不同，需要通过矩阵变换，还原出人眼看着真是的色彩。</li>
+</ul>
+<ol start="7">
+<li>Gamma校正(Gamma Correction):</li>
+</ol>
+<ul>
+<li>作用：人眼对暗部的变化比亮部更敏感(非线性),而传感器是线性的。Gamma校正通过非线性变换提升暗部细节，适应人眼视觉特性。</li>
+</ul>
+<ol start="8">
+<li>降噪与锐化(Denoising &amp; Sharpening):</li>
+</ol>
+<ul>
+<li>作用：去除噪点，增强边缘清晰度。</li>
+</ul>
+<h2 id="3-数字图像的数学表示：矩阵的特点"><a href="#3-数字图像的数学表示：矩阵的特点" class="headerlink" title="3.数字图像的数学表示：矩阵的特点"></a>3.数字图像的数学表示：矩阵的特点</h2><p>在计算机看来，图片不是“图”，就是一个多维矩阵(数组)。<br>矩阵的三大特点：</p>
+<ol>
+<li>离散化(Discretization)：</li>
+</ol>
+<ul>
+<li>空间离散：图像被切分成M行N列的网格(即分辨率，如$1920\times1080$)。坐标$(x,y)$只能是整数。</li>
+<li>数值量化：光的强度是连续的，但在矩阵中必须变成离散的整数(Quantization)。通常用8-bit表示，即0~255。</li>
+</ul>
+<ol start="2">
+<li>维度结构(Dimentions&#x2F;Channels):</li>
+</ol>
+<ul>
+<li>单通道矩阵：灰度图是一个$H \times W$的二维矩阵。</li>
+<li>多通道张量：彩色图通常是$H \times W \times 3$。这3层就像三明治一样叠在一起，分别对应RGB分量。</li>
+</ul>
+<ol start="3">
+<li>坐标系定义(Coordinate System):</li>
+</ol>
+<ul>
+<li>在图像处理(如OpenCV)中，通常定义左上角为原点$(0,0)$。</li>
+<li>$x$轴通常向右(代表列Column)。</li>
+<li>$y$轴通常向下(代表行Row)。</li>
+<li>访问矩阵数据时，编程语言通常是<code>image[y][x]</code>(即<code>image[row][col]</code>)，这与笛卡尔坐标系的$(x,y)$书写顺序往往相反，是初学者最容易混淆的地方。</li>
+</ul>
+<h2 id="4-编程实践部分"><a href="#4-编程实践部分" class="headerlink" title="4.编程实践部分"></a>4.编程实践部分</h2></article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>文章作者: </span><span class="post-copyright-info"><a href="https://chuck3x.github.io">Chuck3x</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>文章链接: </span><span class="post-copyright-info"><a href="https://chuck3x.github.io/2025/12/15/VLRoute/">https://chuck3x.github.io/2025/12/15/VLRoute/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来源 <a href="https://chuck3x.github.io" target="_blank">Clog</a>！</span></div></div><div class="tag_share"><div class="post-share"><div class="social-share" data-image="/img/butterfly-icon.png" data-sites="facebook,x,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.6/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.6/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><a class="pagination-related  no-desc" href="/2025/12/22/%E6%88%91%E4%BB%AC%E7%8E%B0%E5%9C%A8%E5%8F%88%E5%9B%9E%E5%88%B0%E4%BA%86%E4%B8%80%E8%89%98%E8%88%B9%E7%9A%84%E6%95%85%E4%BA%8B/" title="我们现在又回到了一艘船的故事"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info"><div class="info-1"><div class="info-item-1">上一篇</div><div class="info-item-2">我们现在又回到了一艘船的故事</div></div></div></a><a class="pagination-related" href="/2025/08/06/hello-world/" title="Hello World"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-right"><div class="info-1"><div class="info-item-1">下一篇</div><div class="info-item-2">Hello World</div></div><div class="info-2"><div class="info-item-1">Welcome to Hexo! This is your very first post. Check documentation for more info. If you get any problems when using Hexo, you can find the answer in troubleshooting or you can ask me on GitHub. Quick StartCreate a new post1$ hexo new &quot;My New Post&quot;  More info: Writing Run server1$ hexo server  More info: Server Generate static files1$ hexo generate  More info: Generating Deploy to remote sites1$ hexo deploy  More info: Deployment </div></div></div></a></nav></div><div class="aside-content" id="aside-content"><div class="card-widget card-info text-center"><div class="avatar-img"><img src="/img/butterfly-icon.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info-name">Chuck3x</div><div class="author-info-description">你不要再幻想那些坏事 霜雪飘落 你也不会声嘶力竭</div><div class="site-data"><a href="/archives/"><div class="headline">文章</div><div class="length-num">3</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">0</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">0</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/xxxxxx"><i class="fab fa-github"></i><span>Follow Me</span></a></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">This is my Blog</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%9B%BE%E5%83%8F%E5%A4%84%E7%90%86%E5%9F%BA%E7%A1%80"><span class="toc-number">1.</span> <span class="toc-text">图像处理基础</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-%E6%95%B0%E5%AD%97%E5%9B%BE%E5%83%8F%E7%9A%84%E8%8E%B7%E5%8F%96%E5%92%8C%E8%A1%A8%E7%A4%BA"><span class="toc-number">1.1.</span> <span class="toc-text">1.数字图像的获取和表示</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-%E6%95%B0%E7%A0%81%E7%9B%B8%E6%9C%BA%E6%88%90%E5%83%8F%E7%9A%84ISP%E7%AE%A1%E7%BA%BF"><span class="toc-number">1.2.</span> <span class="toc-text">2.数码相机成像的ISP管线</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-%E6%95%B0%E5%AD%97%E5%9B%BE%E5%83%8F%E7%9A%84%E6%95%B0%E5%AD%A6%E8%A1%A8%E7%A4%BA%EF%BC%9A%E7%9F%A9%E9%98%B5%E7%9A%84%E7%89%B9%E7%82%B9"><span class="toc-number">1.3.</span> <span class="toc-text">3.数字图像的数学表示：矩阵的特点</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-%E7%BC%96%E7%A8%8B%E5%AE%9E%E8%B7%B5%E9%83%A8%E5%88%86"><span class="toc-number">1.4.</span> <span class="toc-text">4.编程实践部分</span></a></li></ol></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2025/12/22/%E6%88%91%E4%BB%AC%E7%8E%B0%E5%9C%A8%E5%8F%88%E5%9B%9E%E5%88%B0%E4%BA%86%E4%B8%80%E8%89%98%E8%88%B9%E7%9A%84%E6%95%85%E4%BA%8B/" title="我们现在又回到了一艘船的故事">我们现在又回到了一艘船的故事</a><time datetime="2025-12-22T11:05:30.000Z" title="发表于 2025-12-22 19:05:30">2025-12-22</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2025/12/15/VLRoute/" title="VLRoute">VLRoute</a><time datetime="2025-12-15T07:30:35.000Z" title="发表于 2025-12-15 15:30:35">2025-12-15</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2025/08/06/hello-world/" title="Hello World">Hello World</a><time datetime="2025-08-06T06:01:51.770Z" title="发表于 2025-08-06 14:01:51">2025-08-06</time></div></div></div></div></div></div></main><footer id="footer"><div class="footer-other"><div class="footer-copyright"><span class="copyright">&copy;&nbsp;2025 By Chuck3x</span><span class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo 7.3.0</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly 5.5.3</a></span></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="日间和夜间模式切换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js?v=5.5.3"></script><script src="/js/main.js?v=5.5.3"></script><div class="js-pjax"></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>
