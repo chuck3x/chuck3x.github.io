@@ -148,6 +148,1001 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://chuck3x.github.io/2026/01/16/CkCompiler%E7%BC%96%E8%AF%91%E6%8A%80%E6%9C%AF%E8%AF%BE%E7%A8%8B%E8%AE%BE%E8%AE%A1/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Chuck3x">
+      <meta itemprop="description" content="你不要再幻想那些坏事 霜雪飘落 你也不会声嘶力竭">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Clog">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2026/01/16/CkCompiler%E7%BC%96%E8%AF%91%E6%8A%80%E6%9C%AF%E8%AF%BE%E7%A8%8B%E8%AE%BE%E8%AE%A1/" class="post-title-link" itemprop="url">CkCompiler编译技术课程设计</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2026-01-16 10:33:43 / 修改时间：10:34:54" itemprop="dateCreated datePublished" datetime="2026-01-16T10:33:43+08:00">2026-01-16</time>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h2 id="ckcompiler---ck语言编译器">CkCompiler - Ck语言编译器</h2>
+<p>注：实现了可选项switch语句，结构体和代码优化。</p>
+<hr />
+<h2 id="一语言的定义与特点">一、语言的定义与特点</h2>
+<h3 id="语言概述">1.1 语言概述</h3>
+<p>CkCompiler
+是一个针对Ck语言（类C语言）（.ck文件）的完整编译器实现。该语言是C语言的一个子集，支持基本的程序结构、数据类型和控制流语句。</p>
+<h3 id="支持的语言特性">1.2 支持的语言特性</h3>
+<h4 id="数据类型">1.2.1 数据类型</h4>
+<ul>
+<li><strong>基本类型</strong>：<code>int</code>（整型）、<code>float</code>（浮点型）、<code>char</code>（字符型）</li>
+<li><strong>数组类型</strong>：支持多维数组声明和访问，如
+<code>int arr[10]</code>、<code>float matrix[5][10]</code></li>
+<li><strong>字面量</strong>：整数字面量、浮点字面量、字符字面量（单引号）、字符串字面量（双引号）</li>
+</ul>
+<h4 id="声明与定义">1.2.2 声明与定义</h4>
+<ul>
+<li><strong>变量声明</strong>：支持多变量同时声明，如
+<code>int a, b, c;</code></li>
+<li><strong>数组声明</strong>：支持多维数组，如
+<code>float matrix[5][10];</code></li>
+<li><strong>函数定义</strong>：支持无参数函数定义，如
+<code>int main() &#123; ... &#125;</code></li>
+</ul>
+<h4 id="表达式">1.2.3 表达式</h4>
+<ul>
+<li><strong>算术运算</strong>：<code>+</code>、<code>-</code>、<code>*</code>、<code>/</code>（支持整数和浮点混合运算，自动类型提升）</li>
+<li><strong>关系运算</strong>：<code>&lt;</code>、<code>&gt;</code>、<code>&lt;=</code>、<code>&gt;=</code>、<code>==</code>、<code>!=</code></li>
+<li><strong>逻辑运算</strong>：<code>!</code>（逻辑非）</li>
+<li><strong>赋值运算</strong>：<code>=</code>、<code>+=</code>、<code>-=</code>、<code>*=</code>、<code>/=</code></li>
+<li><strong>自增自减</strong>：<code>++</code>、<code>--</code>（支持前缀和后缀形式）</li>
+<li><strong>一元运算</strong>：<code>-</code>（一元负号）</li>
+<li><strong>数组访问</strong>：<code>arr[i]</code>、<code>matrix[i][j]</code></li>
+</ul>
+<h4 id="语句">1.2.4 语句</h4>
+<ul>
+<li><strong>复合语句</strong>：<code>&#123; ... &#125;</code> 代码块</li>
+<li><strong>条件语句</strong>：
+<ul>
+<li><code>if (condition) statement</code></li>
+<li><code>if (condition) statement else statement</code></li>
+<li><code>switch (expression) &#123; case value: statements; ... default: statements; &#125;</code></li>
+</ul></li>
+<li><strong>循环语句</strong>：
+<ul>
+<li><code>while (condition) statement</code></li>
+<li><code>for (init; condition; update) statement</code></li>
+</ul></li>
+<li><strong>跳转语句</strong>：<code>break</code>、<code>continue</code></li>
+<li><strong>表达式语句</strong>：以分号结尾的表达式</li>
+</ul>
+<h4 id="结构体">1.2.5 结构体</h4>
+<ul>
+<li><strong>结构体定义</strong>：<code>struct Name &#123; type member1; type member2; &#125;;</code></li>
+<li><strong>结构体声明</strong>：<code>struct Name var;</code></li>
+<li><strong>成员访问</strong>：<code>var.member</code></li>
+</ul>
+<h4 id="注释">1.2.6 注释</h4>
+<ul>
+<li><strong>行注释</strong>：<code>// 注释内容</code></li>
+<li><strong>块注释</strong>：<code>/* 注释内容 */</code></li>
+</ul>
+<h3 id="语言特点">1.3 语言特点</h3>
+<ol type="1">
+<li><strong>简洁性</strong>：保留了C语言核心特性，实现了switch语句和结构体等关键特性</li>
+<li><strong>类型安全</strong>：强类型系统，编译时进行类型检查和自动类型提升</li>
+<li><strong>表达式优先级</strong>：完整实现了运算符优先级和结合性</li>
+<li><strong>作用域</strong>：当前实现采用全局作用域，所有变量在全局符号表中管理</li>
+<li><strong>解释执行</strong>：支持语义分析阶段的解释执行，可直接运行程序</li>
+<li><strong>代码优化</strong>：支持常量折叠和死代码消除等优化技术</li>
+</ol>
+<h3 id="示例程序">1.4 示例程序</h3>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span> global_var;</span><br><span class="line"></span><br><span class="line"><span class="type">int</span> <span class="title function_">main</span><span class="params">()</span> &#123;</span><br><span class="line">    <span class="type">int</span> i, j;</span><br><span class="line">    <span class="type">float</span> matrix[<span class="number">5</span>][<span class="number">10</span>];</span><br><span class="line">    <span class="type">char</span> c;</span><br><span class="line"></span><br><span class="line">    i = <span class="number">0</span>;</span><br><span class="line">    global_var = <span class="number">100</span>;</span><br><span class="line">    global_var += <span class="number">50</span>;</span><br><span class="line">    c = <span class="string">&#x27;A&#x27;</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">while</span> (i &lt; <span class="number">5</span>) &#123;</span><br><span class="line">        matrix[i][<span class="number">0</span>] = i * <span class="number">10.0</span>;</span><br><span class="line">        i++;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (i == <span class="number">3</span>) &#123;</span><br><span class="line">            <span class="keyword">break</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">for</span> (j = <span class="number">0</span>; j &lt; <span class="number">10</span>; ++j) &#123;</span><br><span class="line">        <span class="keyword">if</span> (j == <span class="number">0</span>) &#123;</span><br><span class="line">            <span class="keyword">continue</span>;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (matrix[<span class="number">2</span>][<span class="number">0</span>] == <span class="number">20.0</span>) &#123;</span><br><span class="line">            matrix[<span class="number">0</span>][j] = global_var / j;</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            matrix[<span class="number">0</span>][j] = <span class="number">-1.0</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<hr />
+<h2 id="二词法分析">二、词法分析</h2>
+<h3 id="实现工具">2.1 实现工具</h3>
+<p>使用 <strong>Flex</strong> (Fast Lexical Analyzer Generator)
+实现词法分析器，通过正则表达式定义词法规则。</p>
+<h3 id="核心技术">2.2 核心技术</h3>
+<h4 id="正则表达式定义">2.2.1 正则表达式定义</h4>
+<p>在 <code>ck.l</code> 的定义区，使用正则表达式定义各类词法单元：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">DIGIT    [<span class="number">0</span><span class="number">-9</span>]</span><br><span class="line">ID       [a-zA-Z_][a-zA-Z_0<span class="number">-9</span>]*</span><br><span class="line">FLOAT    &#123;DIGIT&#125;+\.&#123;DIGIT&#125;+</span><br><span class="line">INTEGER  &#123;DIGIT&#125;+</span><br><span class="line">CHAR     \<span class="string">&#x27;([^&#x27;</span>\\]|\\.)\&#x27;</span><br><span class="line">STRING   \<span class="string">&quot;([^&quot;</span>\\]|\\.)*\<span class="string">&quot;</span></span><br></pre></td></tr></table></figure>
+<p><strong>设计要点</strong>： - 标识符必须以字母或下划线开头 -
+字符字面量支持转义序列（如 <code>\n</code>、<code>\t</code>） -
+字符串字面量支持转义字符</p>
+<h4 id="关键字识别">2.2.2 关键字识别</h4>
+<p>通过字符串匹配识别保留字：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="string">&quot;int&quot;</span>      &#123; <span class="keyword">return</span> INT; &#125;</span><br><span class="line"><span class="string">&quot;float&quot;</span>    &#123; <span class="keyword">return</span> FLOAT_TYPE; &#125;</span><br><span class="line"><span class="string">&quot;char&quot;</span>     &#123; <span class="keyword">return</span> CHAR_TYPE; &#125;</span><br><span class="line"><span class="string">&quot;if&quot;</span>       &#123; <span class="keyword">return</span> IF; &#125;</span><br><span class="line"><span class="string">&quot;else&quot;</span>     &#123; <span class="keyword">return</span> ELSE; &#125;</span><br><span class="line"><span class="string">&quot;while&quot;</span>    &#123; <span class="keyword">return</span> WHILE; &#125;</span><br><span class="line"><span class="string">&quot;for&quot;</span>      &#123; <span class="keyword">return</span> FOR; &#125;</span><br><span class="line"><span class="string">&quot;switch&quot;</span>   &#123; <span class="keyword">return</span> SWITCH; &#125;</span><br><span class="line"><span class="string">&quot;case&quot;</span>     &#123; <span class="keyword">return</span> CASE; &#125;</span><br><span class="line"><span class="string">&quot;default&quot;</span>  &#123; <span class="keyword">return</span> DEFAULT; &#125;</span><br><span class="line"><span class="string">&quot;break&quot;</span>    &#123; <span class="keyword">return</span> BREAK; &#125;</span><br><span class="line"><span class="string">&quot;continue&quot;</span> &#123; <span class="keyword">return</span> CONTINUE; &#125;</span><br><span class="line"><span class="string">&quot;struct&quot;</span>   &#123; <span class="keyword">return</span> STRUCT; &#125;</span><br></pre></td></tr></table></figure>
+<h4 id="运算符识别">2.2.3 运算符识别</h4>
+<p>识别单字符和多字符运算符：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="string">&quot;++&quot;</span>       &#123; <span class="keyword">return</span> INC; &#125;</span><br><span class="line"><span class="string">&quot;--&quot;</span>       &#123; <span class="keyword">return</span> DEC; &#125;</span><br><span class="line"><span class="string">&quot;+=&quot;</span>       &#123; <span class="keyword">return</span> ADD_ASSIGN; &#125;</span><br><span class="line"><span class="string">&quot;-=&quot;</span>       &#123; <span class="keyword">return</span> SUB_ASSIGN; &#125;</span><br><span class="line"><span class="string">&quot;*=&quot;</span>       &#123; <span class="keyword">return</span> MUL_ASSIGN; &#125;</span><br><span class="line"><span class="string">&quot;/=&quot;</span>       &#123; <span class="keyword">return</span> DIV_ASSIGN; &#125;</span><br><span class="line"><span class="string">&quot;==&quot;</span>       &#123; <span class="keyword">return</span> EQ; &#125;</span><br><span class="line"><span class="string">&quot;!=&quot;</span>       &#123; <span class="keyword">return</span> NEQ; &#125;</span><br><span class="line"><span class="string">&quot;&gt;=&quot;</span>       &#123; <span class="keyword">return</span> GE; &#125;</span><br><span class="line"><span class="string">&quot;&lt;=&quot;</span>       &#123; <span class="keyword">return</span> LE; &#125;</span><br></pre></td></tr></table></figure>
+<p><strong>关键点</strong>：多字符运算符必须放在单字符运算符之前，避免被误识别。</p>
+<h4 id="注释处理">2.2.4 注释处理</h4>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="string">&quot;//&quot;</span>.* &#123; <span class="comment">/* 忽略行注释 */</span> &#125;</span><br><span class="line"><span class="string">&quot;/*&quot;</span>([^*]|(\*+[^*/]))*\*+<span class="string">&quot;/&quot;</span> &#123; <span class="comment">/* 忽略块注释 */</span> &#125;</span><br></pre></td></tr></table></figure>
+<p>使用正则表达式匹配注释并丢弃，块注释的正则表达式处理了嵌套星号的边界情况。</p>
+<h4 id="行号追踪">2.2.5 行号追踪</h4>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">\n &#123; yylineno++; &#125;</span><br></pre></td></tr></table></figure>
+<p>利用 Flex 的内置变量 <code>yylineno</code>
+追踪当前行号，用于错误报告。</p>
+<h3 id="语义值传递">2.3 语义值传递</h3>
+<p>通过 <code>yylval</code> 将词法值传递给语法分析器：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">&#123;ID&#125;       &#123; yylval.strVal = strdup(yytext); <span class="keyword">return</span> ID; &#125;</span><br><span class="line">&#123;INTEGER&#125;  &#123; yylval.strVal = strdup(yytext); <span class="keyword">return</span> INT_LITERAL; &#125;</span><br><span class="line">&#123;FLOAT&#125;    &#123; yylval.strVal = strdup(yytext); <span class="keyword">return</span> FLOAT_LITERAL; &#125;</span><br></pre></td></tr></table></figure>
+<p>使用 <code>strdup()</code> 复制字符串，避免指针失效问题。</p>
+<h3 id="错误处理">2.4 错误处理</h3>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">.          &#123; <span class="built_in">fprintf</span>(<span class="built_in">stderr</span>, <span class="string">&quot;Line %d: Illegal character &#x27;%s&#x27;\n&quot;</span>, yylineno, yytext); &#125;</span><br></pre></td></tr></table></figure>
+<p>对于无法识别的字符，输出错误信息并标注行号。</p>
+<hr />
+<h2 id="三语法分析">三、语法分析</h2>
+<h3 id="实现工具-1">3.1 实现工具</h3>
+<p>使用 <strong>Bison</strong> (GNU Parser Generator)
+实现语法分析器，采用自底向上的 LALR(1) 分析算法。</p>
+<h3 id="核心技术-1">3.2 核心技术</h3>
+<h4 id="抽象语法树-ast-设计">3.2.1 抽象语法树 (AST) 设计</h4>
+<p><strong>节点结构</strong> (<code>def.h</code>):</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> <span class="title">AstNode</span> &#123;</span></span><br><span class="line">    <span class="type">int</span> line;                     <span class="comment">// 源代码行号</span></span><br><span class="line">    NodeType type;                <span class="comment">// 节点类型（45+种）</span></span><br><span class="line">    <span class="type">char</span>* value;                  <span class="comment">// 节点值（标识符、字面量）</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">AstNode</span> *<span class="title">child</span>;</span>        <span class="comment">// 第一个子节点</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">AstNode</span> *<span class="title">sibling</span>;</span>      <span class="comment">// 兄弟节点</span></span><br><span class="line">&#125; AstNode;</span><br></pre></td></tr></table></figure>
+<p><strong>树结构表示</strong>：采用 <strong>child-sibling</strong>
+(孩子-兄弟) 表示法，可以表示任意 n 叉树： - <code>child</code>
+指针指向第一个子节点 - <code>sibling</code> 指针连接同层兄弟节点</p>
+<p><strong>示例</strong>：表达式 <code>a + b * c</code> 的AST结构：
+<figure class="highlight css"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">  +</span><br><span class="line"> / \</span><br><span class="line"><span class="selector-tag">a</span>   *</span><br><span class="line">   / \</span><br><span class="line">  <span class="selector-tag">b</span>   c</span><br></pre></td></tr></table></figure></p>
+<h4 id="表达式优先级处理">3.2.2 表达式优先级处理</h4>
+<p>通过 <strong>文法层次</strong> 和 <strong>优先级声明</strong>
+结合实现运算符优先级：</p>
+<p><strong>文法层次</strong>（从低到高）： 1.
+<code>expression</code>：处理赋值运算符（右结合） 2.
+<code>binary_expression</code>：处理算术和关系运算符（左结合） 3.
+<code>unary_expression</code>：处理前缀++/–、一元负号、逻辑非 4.
+<code>postfix_expression</code>：处理数组访问、后缀++/– 5.
+<code>factor</code>：处理括号和字面量</p>
+<p><strong>优先级声明</strong>： <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">%right &#x27;=&#x27; ADD_ASSIGN SUB_ASSIGN MUL_ASSIGN DIV_ASSIGN</span><br><span class="line">%left EQ NEQ</span><br><span class="line">%left &#x27;&lt;&#x27; &#x27;&gt;&#x27; LE GE</span><br><span class="line">%left &#x27;+&#x27; &#x27;-&#x27;</span><br><span class="line">%left &#x27;*&#x27; &#x27;/&#x27;</span><br><span class="line">%right &#x27;!&#x27;</span><br><span class="line">%right UMINUS</span><br><span class="line">%right PRE_INC PRE_DEC</span><br><span class="line">%left INC DEC</span><br><span class="line">%left &#x27;[&#x27; &#x27;]&#x27; &#x27;(&#x27; &#x27;)&#x27;</span><br></pre></td></tr></table></figure></p>
+<p>这种设计消除了大量的 shift/reduce 冲突，使文法清晰且易于维护。</p>
+<h4 id="关键文法规则">3.2.3 关键文法规则</h4>
+<p><strong>程序结构</strong>： <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">program: translation_unit &#123; root = $1; &#125;;</span><br><span class="line"></span><br><span class="line">translation_unit:</span><br><span class="line">    external_declaration</span><br><span class="line">    | translation_unit external_declaration;</span><br><span class="line"></span><br><span class="line">external_declaration:</span><br><span class="line">    declaration | function_definition;</span><br></pre></td></tr></table></figure></p>
+<p><strong>声明语句</strong>： <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">declaration:</span><br><span class="line">    type_specifier declaration_list &#x27;;&#x27;</span><br><span class="line">    &#123;</span><br><span class="line">        $$ = $2;</span><br><span class="line">        // 将类型信息插入到每个声明项的子节点</span><br><span class="line">        AstNode* p = $2-&gt;child;</span><br><span class="line">        while (p) &#123;</span><br><span class="line">            AstNode* typeNode = newNode($1-&gt;type, $1-&gt;line, strdup($1-&gt;value));</span><br><span class="line">            typeNode-&gt;sibling = p-&gt;child;</span><br><span class="line">            p-&gt;child = typeNode;</span><br><span class="line">            p = p-&gt;sibling;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;;</span><br></pre></td></tr></table></figure></p>
+<p><strong>二元表达式</strong>： <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">binary_expression:</span><br><span class="line">    unary_expression</span><br><span class="line">    | binary_expression &#x27;+&#x27; binary_expression</span><br><span class="line">      &#123; $$ = newNode(NODE_ADD, $1-&gt;line, NULL);</span><br><span class="line">        linkNodes($$, $1); linkNodes($$, $3); &#125;</span><br><span class="line">    | binary_expression &#x27;*&#x27; binary_expression</span><br><span class="line">      &#123; $$ = newNode(NODE_MUL, $1-&gt;line, NULL);</span><br><span class="line">        linkNodes($$, $1); linkNodes($$, $3); &#125;</span><br><span class="line">    // ... 其他运算符</span><br></pre></td></tr></table></figure></p>
+<p><strong>控制流语句</strong>： <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">if_statement:</span><br><span class="line">    IF &#x27;(&#x27; expression &#x27;)&#x27; statement %prec IFX</span><br><span class="line">    | IF &#x27;(&#x27; expression &#x27;)&#x27; statement ELSE statement;</span><br><span class="line"></span><br><span class="line">while_statement:</span><br><span class="line">    WHILE &#x27;(&#x27; expression &#x27;)&#x27; statement;</span><br><span class="line"></span><br><span class="line">for_statement:</span><br><span class="line">    FOR &#x27;(&#x27; optional_expression &#x27;;&#x27; optional_expression &#x27;;&#x27; optional_expression &#x27;)&#x27; statement;</span><br><span class="line"></span><br><span class="line">switch_statement:</span><br><span class="line">    SWITCH &#x27;(&#x27; expression &#x27;)&#x27; &#x27;&#123;&#x27; case_list &#x27;&#125;&#x27;;</span><br><span class="line"></span><br><span class="line">case_statement:</span><br><span class="line">    CASE expression &#x27;:&#x27; statement_list</span><br><span class="line">    | DEFAULT &#x27;:&#x27; statement_list;</span><br></pre></td></tr></table></figure></p>
+<p>使用 <code>%prec IFX</code> 解决 if-else 的悬挂 else (dangling else)
+问题。</p>
+<p><strong>switch语句设计要点</strong>： -
+switch表达式只支持整型和字符型 - case值必须是常量表达式 -
+支持default分支 - switch内部可以使用break语句</p>
+<h4 id="数组处理">3.2.4 数组处理</h4>
+<p><strong>数组声明</strong>： <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">array_declarator:</span><br><span class="line">    ID array_dimensions</span><br><span class="line">    &#123;</span><br><span class="line">        $$ = newNode(NODE_ARRAY_DECL, yylineno, NULL);</span><br><span class="line">        linkNodes($$, newNode(NODE_ID, yylineno, $1));</span><br><span class="line">        linkNodes($$, $2);</span><br><span class="line">    &#125;;</span><br><span class="line"></span><br><span class="line">array_dimensions:</span><br><span class="line">    &#x27;[&#x27; expression &#x27;]&#x27;</span><br><span class="line">    | array_dimensions &#x27;[&#x27; expression &#x27;]&#x27;</span><br><span class="line">      &#123; linkNodes($1, $3); $$ = $1; &#125;;</span><br></pre></td></tr></table></figure></p>
+<p>支持多维数组，维度信息通过兄弟节点链接。</p>
+<p><strong>数组访问</strong>： <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">postfix_expression &#x27;[&#x27; expression &#x27;]&#x27;</span><br><span class="line">&#123;</span><br><span class="line">    $$ = newNode(NODE_ARRAY_ACCESS, $1-&gt;line, NULL);</span><br><span class="line">    linkNodes($$, $1);</span><br><span class="line">    linkNodes($$, $3);</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure></p>
+<h4 id="结构体处理">3.2.5 结构体处理</h4>
+<p><strong>结构体定义</strong>： <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">struct_declarator:</span><br><span class="line">    STRUCT ID &#x27;&#123;&#x27; struct_member_list &#x27;&#125;&#x27;</span><br><span class="line">    &#123;</span><br><span class="line">        $$ = newNode(NODE_STRUCT_DEF, yylineno, $2);</span><br><span class="line">        linkNodes($$, $4);  /* 成员列表 */</span><br><span class="line">    &#125;</span><br><span class="line">    | STRUCT ID</span><br><span class="line">    &#123;</span><br><span class="line">        $$ = newNode(NODE_STRUCT_DECL, yylineno, $2);</span><br><span class="line">    &#125;;</span><br><span class="line"></span><br><span class="line">struct_member:</span><br><span class="line">    type_specifier ID &#x27;;&#x27;</span><br><span class="line">    &#123;</span><br><span class="line">        $$ = newNode(NODE_MEMBER_DECL, yylineno, NULL);</span><br><span class="line">        linkNodes($$, $1);  /* 成员类型 */</span><br><span class="line">        linkNodes($$, newNode(NODE_ID, yylineno, $2));  /* 成员名 */</span><br><span class="line">    &#125;;</span><br></pre></td></tr></table></figure></p>
+<p><strong>成员访问</strong>： <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">postfix_expression &#x27;.&#x27; ID</span><br><span class="line">&#123;</span><br><span class="line">    $$ = newNode(NODE_MEMBER_ACCESS, $1-&gt;line, NULL);</span><br><span class="line">    linkNodes($$, $1);</span><br><span class="line">    linkNodes($$, newNode(NODE_ID, yylineno, $3));</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure></p>
+<p><strong>结构体设计要点</strong>： - 支持结构体定义和声明 -
+成员可以是基本类型 - 通过点运算符访问成员 - 结构体信息存储在符号表中</p>
+<h4 id="ast-构建函数">3.2.6 AST 构建函数</h4>
+<p><strong>节点创建</strong>： <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">AstNode* <span class="title function_">newNode</span><span class="params">(NodeType type, <span class="type">int</span> line, <span class="type">char</span>* value)</span> &#123;</span><br><span class="line">    AstNode* node = (AstNode*)<span class="built_in">malloc</span>(<span class="keyword">sizeof</span>(AstNode));</span><br><span class="line">    node-&gt;type = type;</span><br><span class="line">    node-&gt;line = line;</span><br><span class="line">    node-&gt;value = value;</span><br><span class="line">    node-&gt;child = <span class="literal">NULL</span>;</span><br><span class="line">    node-&gt;sibling = <span class="literal">NULL</span>;</span><br><span class="line">    <span class="keyword">return</span> node;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p><strong>节点连接</strong>： <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">void</span> <span class="title function_">linkNodes</span><span class="params">(AstNode* parent, AstNode* child)</span> &#123;</span><br><span class="line">    <span class="keyword">if</span> (parent == <span class="literal">NULL</span> || child == <span class="literal">NULL</span>) <span class="keyword">return</span>;</span><br><span class="line"></span><br><span class="line">    AstNode* p = parent-&gt;child;</span><br><span class="line">    <span class="keyword">if</span> (p == <span class="literal">NULL</span>) &#123;</span><br><span class="line">        parent-&gt;child = child;  <span class="comment">// 作为第一个子节点</span></span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="keyword">while</span> (p-&gt;sibling != <span class="literal">NULL</span>) &#123;</span><br><span class="line">            p = p-&gt;sibling;  <span class="comment">// 找到最后一个兄弟</span></span><br><span class="line">        &#125;</span><br><span class="line">        p-&gt;sibling = child;  <span class="comment">// 添加为兄弟节点</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<h3 id="冲突解决">3.3 冲突解决</h3>
+<ul>
+<li><strong>Shift/Reduce 冲突</strong>：通过优先级声明和
+<code>%prec</code> 指令解决</li>
+<li><strong>Reduce/Reduce 冲突</strong>：通过重构文法消除二义性</li>
+<li><strong>Dangling Else</strong>：使用 <code>%prec IFX</code> 和
+<code>%nonassoc ELSE</code> 解决</li>
+</ul>
+<hr />
+<h2 id="四语义分析">四、语义分析</h2>
+<h3 id="实现目标">4.1 实现目标</h3>
+<p>实现完整的语义检查和解释执行功能，包括类型检查、符号表管理、语义错误检测等。</p>
+<h3 id="核心技术-2">4.2 核心技术</h3>
+<h4 id="符号表设计">4.2.1 符号表设计</h4>
+<p><strong>符号表项结构</strong> (<code>semantic.h</code>):</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> <span class="title">SymbolEntry</span> &#123;</span></span><br><span class="line">    <span class="type">char</span>* name;                    <span class="comment">// 变量名</span></span><br><span class="line">    DataType type;                 <span class="comment">// 数据类型</span></span><br><span class="line">    SymbolValue value;             <span class="comment">// 变量值（解释执行时使用）</span></span><br><span class="line">    ArrayInfo* arrayInfo;          <span class="comment">// 数组信息</span></span><br><span class="line">    <span class="type">int</span> line;                      <span class="comment">// 定义行号</span></span><br><span class="line">    <span class="type">bool</span> initialized;              <span class="comment">// 是否已初始化</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">SymbolEntry</span>* <span class="title">next</span>;</span>      <span class="comment">// 链表下一项</span></span><br><span class="line">&#125; SymbolEntry;</span><br></pre></td></tr></table></figure>
+<p><strong>符号表实现</strong>：采用链表实现，支持插入、查找、更新操作。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> &#123;</span></span><br><span class="line">    SymbolEntry* head;</span><br><span class="line">    <span class="type">int</span> size;</span><br><span class="line">&#125; SymbolTable;</span><br></pre></td></tr></table></figure>
+<p><strong>关键操作</strong>： - <code>insertSymbol()</code>:
+插入新符号，检查重定义 - <code>lookupSymbol()</code>:
+查找符号，返回符号表项指针 - <code>updateSymbol()</code>:
+更新符号的值和类型</p>
+<h4 id="类型系统">4.2.2 类型系统</h4>
+<p><strong>数据类型枚举</strong>： <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">enum</span> &#123;</span></span><br><span class="line">    TYPE_INT,</span><br><span class="line">    TYPE_FLOAT,</span><br><span class="line">    TYPE_CHAR,</span><br><span class="line">    TYPE_ARRAY,</span><br><span class="line">    TYPE_VOID,</span><br><span class="line">    TYPE_UNKNOWN</span><br><span class="line">&#125; DataType;</span><br></pre></td></tr></table></figure></p>
+<p><strong>类型提升规则</strong>： <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">DataType <span class="title function_">promoteTypes</span><span class="params">(DataType t1, DataType t2)</span> &#123;</span><br><span class="line">    <span class="keyword">if</span> (t1 == TYPE_FLOAT || t2 == TYPE_FLOAT)</span><br><span class="line">        <span class="keyword">return</span> TYPE_FLOAT;</span><br><span class="line">    <span class="keyword">if</span> (t1 == TYPE_INT || t2 == TYPE_INT)</span><br><span class="line">        <span class="keyword">return</span> TYPE_INT;</span><br><span class="line">    <span class="keyword">return</span> TYPE_CHAR;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>在混合类型运算中自动提升类型：<code>int + float → float</code>。</p>
+<h4 id="语义错误检测">4.2.3 语义错误检测</h4>
+<p>实现了 <strong>18种语义错误</strong> 的检测：</p>
+<table>
+<thead>
+<tr>
+<th>错误类型</th>
+<th>说明</th>
+<th>示例</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>ERR_UNDEFINED_VAR</td>
+<td>使用未定义的变量</td>
+<td><code>x = 10;</code> (x未声明)</td>
+</tr>
+<tr>
+<td>ERR_REDEFINED_VAR</td>
+<td>变量重复定义</td>
+<td><code>int a; int a;</code></td>
+</tr>
+<tr>
+<td>ERR_TYPE_MISMATCH</td>
+<td>类型不匹配</td>
+<td><code>int a = 3.14;</code></td>
+</tr>
+<tr>
+<td>ERR_ARRAY_REQUIRED</td>
+<td>需要数组类型</td>
+<td><code>int a; a[0] = 1;</code></td>
+</tr>
+<tr>
+<td>ERR_NOT_ARRAY</td>
+<td>非数组使用下标</td>
+<td><code>int a; x = a[0];</code></td>
+</tr>
+<tr>
+<td>ERR_ARRAY_DIM_MISMATCH</td>
+<td>数组维度不匹配</td>
+<td><code>int a[5]; a[1][2] = 3;</code></td>
+</tr>
+<tr>
+<td>ERR_INVALID_ARRAY_INDEX</td>
+<td>无效的数组索引</td>
+<td><code>a[3.14]</code></td>
+</tr>
+<tr>
+<td>ERR_BREAK_OUTSIDE_LOOP</td>
+<td>break不在循环中</td>
+<td><code>if (x) break;</code></td>
+</tr>
+<tr>
+<td>ERR_CONTINUE_OUTSIDE_LOOP</td>
+<td>continue不在循环中</td>
+<td><code>if (x) continue;</code></td>
+</tr>
+<tr>
+<td>ERR_INVALID_LVALUE</td>
+<td>无效的左值</td>
+<td><code>3 = x;</code></td>
+</tr>
+<tr>
+<td>ERR_DIVISION_BY_ZERO</td>
+<td>除零错误</td>
+<td><code>x = 10 / 0;</code></td>
+</tr>
+<tr>
+<td>ERR_UNINITIALIZED_VAR</td>
+<td>使用未初始化变量</td>
+<td><code>int a; x = a;</code></td>
+</tr>
+<tr>
+<td>ERR_INVALID_OPERATOR</td>
+<td>无效的操作符</td>
+<td><code>char + char</code></td>
+</tr>
+<tr>
+<td>ERR_ARRAY_SIZE_INVALID</td>
+<td>数组大小无效</td>
+<td><code>int a[-5];</code></td>
+</tr>
+<tr>
+<td>ERR_TOO_MANY_DIMENSIONS</td>
+<td>数组维度过多</td>
+<td>(实现限制)</td>
+</tr>
+<tr>
+<td>ERR_CONST_ASSIGN</td>
+<td>给常量赋值</td>
+<td><code>10 = x;</code></td>
+</tr>
+<tr>
+<td>ERR_INVALID_INCREMENT</td>
+<td>无效的自增/自减</td>
+<td><code>(a+b)++;</code></td>
+</tr>
+<tr>
+<td>ERR_CHAR_ARITHMETIC</td>
+<td>字符类型算术错误</td>
+<td><code>'a' * 'b'</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>错误报告函数</strong>： <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">void</span> <span class="title function_">reportSemanticError</span><span class="params">(SemanticContext* ctx, SemanticErrorType errType,</span></span><br><span class="line"><span class="params">                        <span class="type">int</span> line, <span class="type">const</span> <span class="type">char</span>* msg)</span> &#123;</span><br><span class="line">    <span class="built_in">fprintf</span>(<span class="built_in">stderr</span>, <span class="string">&quot;Semantic Error [%s] at Line %d: %s\n&quot;</span>,</span><br><span class="line">            semanticErrorToString(errType), line, msg);</span><br><span class="line">    ctx-&gt;errorCount++;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<h4 id="表达式求值">4.2.4 表达式求值</h4>
+<p><strong>求值结果结构</strong>： <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> &#123;</span></span><br><span class="line">    DataType type;      <span class="comment">// 表达式类型</span></span><br><span class="line">    SymbolValue value;  <span class="comment">// 表达式值</span></span><br><span class="line">    <span class="type">bool</span> isValid;       <span class="comment">// 是否有效</span></span><br><span class="line">&#125; EvalResult;</span><br></pre></td></tr></table></figure></p>
+<p><strong>求值算法</strong> (<code>evaluateExpression</code>):</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line">EvalResult <span class="title function_">evaluateExpression</span><span class="params">(AstNode* node, SemanticContext* ctx)</span> &#123;</span><br><span class="line">    <span class="keyword">switch</span> (node-&gt;type) &#123;</span><br><span class="line">        <span class="keyword">case</span> NODE_INT_LITERAL:</span><br><span class="line">            <span class="keyword">return</span> (EvalResult)&#123;TYPE_INT, &#123;.intVal = atoi(node-&gt;value)&#125;, <span class="literal">true</span>&#125;;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">case</span> NODE_ID:</span><br><span class="line">            <span class="comment">// 查找符号表，检查是否已初始化</span></span><br><span class="line">            entry = lookupSymbol(ctx-&gt;symTable, node-&gt;value);</span><br><span class="line">            <span class="keyword">if</span> (!entry) &#123;</span><br><span class="line">                reportSemanticError(ctx, ERR_UNDEFINED_VAR, ...);</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">if</span> (!entry-&gt;initialized) &#123;</span><br><span class="line">                reportSemanticError(ctx, ERR_UNINITIALIZED_VAR, ...);</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">return</span> (EvalResult)&#123;entry-&gt;type, entry-&gt;value, <span class="literal">true</span>&#125;;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">case</span> NODE_ADD:</span><br><span class="line">            <span class="comment">// 递归求值左右子表达式，类型提升，计算结果</span></span><br><span class="line">            left = evaluateExpression(node-&gt;child, ctx);</span><br><span class="line">            right = evaluateExpression(node-&gt;child-&gt;sibling, ctx);</span><br><span class="line">            resultType = promoteTypes(left.type, right.type);</span><br><span class="line">            <span class="comment">// 根据 resultType 执行相应的加法运算</span></span><br><span class="line">            ...</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><strong>关键点</strong>： - 递归遍历 AST 进行求值 -
+自动类型提升和转换 - 检测运行时错误（如除零）</p>
+<h4 id="语句执行">4.2.5 语句执行</h4>
+<p><strong>执行算法</strong> (<code>executeStatement</code>):</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">void</span> <span class="title function_">executeStatement</span><span class="params">(AstNode* node, SemanticContext* ctx)</span> &#123;</span><br><span class="line">    <span class="keyword">switch</span> (node-&gt;type) &#123;</span><br><span class="line">        <span class="keyword">case</span> NODE_ASSIGN_STMT:</span><br><span class="line">            <span class="comment">// 检查左值合法性，求值右表达式，更新符号表</span></span><br><span class="line">            ...</span><br><span class="line"></span><br><span class="line">        <span class="keyword">case</span> NODE_IF_STMT:</span><br><span class="line">            <span class="comment">// 求值条件，根据结果执行相应分支</span></span><br><span class="line">            EvalResult cond = evaluateExpression(node-&gt;child, ctx);</span><br><span class="line">            <span class="keyword">if</span> (cond.value.intVal) &#123;</span><br><span class="line">                executeStatement(node-&gt;child-&gt;sibling, ctx);</span><br><span class="line">            &#125; <span class="keyword">else</span> <span class="keyword">if</span> (node-&gt;child-&gt;sibling-&gt;sibling) &#123;</span><br><span class="line">                executeStatement(node-&gt;child-&gt;sibling-&gt;sibling, ctx);</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">break</span>;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">case</span> NODE_WHILE_STMT:</span><br><span class="line">            ctx-&gt;inLoop++;  <span class="comment">// 进入循环</span></span><br><span class="line">            <span class="keyword">while</span> (evaluateExpression(cond, ctx).value.intVal) &#123;</span><br><span class="line">                executeStatement(body, ctx);</span><br><span class="line">            &#125;</span><br><span class="line">            ctx-&gt;inLoop--;  <span class="comment">// 退出循环</span></span><br><span class="line">            <span class="keyword">break</span>;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">case</span> NODE_BREAK:</span><br><span class="line">            <span class="keyword">if</span> (ctx-&gt;inLoop == <span class="number">0</span>) &#123;</span><br><span class="line">                reportSemanticError(ctx, ERR_BREAK_OUTSIDE_LOOP, ...);</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">break</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><strong>循环深度追踪</strong>：使用 <code>ctx-&gt;inLoop</code>
+计数器追踪循环嵌套层次，检查 break/continue 合法性。</p>
+<h4 id="数组处理-1">4.2.6 数组处理</h4>
+<p><strong>数组信息结构</strong>： <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> &#123;</span></span><br><span class="line">    DataType elementType;  <span class="comment">// 元素类型</span></span><br><span class="line">    <span class="type">int</span>* dimensions;       <span class="comment">// 各维度大小</span></span><br><span class="line">    <span class="type">int</span> dimCount;          <span class="comment">// 维度数量</span></span><br><span class="line">    <span class="type">void</span>* data;            <span class="comment">// 数组数据</span></span><br><span class="line">&#125; ArrayInfo;</span><br></pre></td></tr></table></figure></p>
+<p><strong>数组访问求值</strong>： <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">case</span> NODE_ARRAY_ACCESS:</span><br><span class="line">    <span class="comment">// 检查基址是否为数组</span></span><br><span class="line">    <span class="comment">// 递归求值索引表达式</span></span><br><span class="line">    <span class="comment">// 检查索引类型和范围</span></span><br><span class="line">    <span class="comment">// 计算偏移量并访问数组元素</span></span><br></pre></td></tr></table></figure></p>
+<p>支持多维数组的行主序存储。</p>
+<h3 id="语义分析流程">4.3 语义分析流程</h3>
+<figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="title">analyzeProgram</span><span class="params">(root, ctx)</span></span></span><br><span class="line">    ↓</span><br><span class="line">遍历声明列表 → 插入符号表 → 检查重定义</span><br><span class="line">    ↓</span><br><span class="line">遍历语句列表 → executeStatement</span><br><span class="line">    ↓</span><br><span class="line">递归求值表达式 → evaluateExpression</span><br><span class="line">    ↓</span><br><span class="line">类型检查 → 运行时求值 → 更新符号表</span><br></pre></td></tr></table></figure>
+<hr />
+<h2 id="五中间代码生成">五、中间代码生成</h2>
+<h3 id="中间表示">5.1 中间表示</h3>
+<p>采用 <strong>三地址码</strong> (Three-Address Code)
+作为中间表示，每条指令最多包含三个地址。</p>
+<h3 id="核心技术-3">5.2 核心技术</h3>
+<h4 id="三地址码设计">5.2.1 三地址码设计</h4>
+<p><strong>指令结构</strong> (<code>ircode.h</code>):</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> <span class="title">IRCode</span> &#123;</span></span><br><span class="line">    IROpCode op;            <span class="comment">// 操作码</span></span><br><span class="line">    Operand result;         <span class="comment">// 结果操作数</span></span><br><span class="line">    Operand arg1;           <span class="comment">// 第一个参数</span></span><br><span class="line">    Operand arg2;           <span class="comment">// 第二个参数</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">IRCode</span>* <span class="title">next</span>;</span>    <span class="comment">// 下一条指令</span></span><br><span class="line">    <span class="type">int</span> line;               <span class="comment">// 源代码行号</span></span><br><span class="line">&#125; IRCode;</span><br></pre></td></tr></table></figure>
+<p><strong>操作码类型</strong> (共30+种):</p>
+<table>
+<thead>
+<tr>
+<th>类别</th>
+<th>操作码</th>
+<th>说明</th>
+<th>示例</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>算术运算</strong></td>
+<td>IR_ADD</td>
+<td>加法</td>
+<td><code>t1 = t2 + t3</code></td>
+</tr>
+<tr>
+<td></td>
+<td>IR_SUB</td>
+<td>减法</td>
+<td><code>t1 = t2 - t3</code></td>
+</tr>
+<tr>
+<td></td>
+<td>IR_MUL</td>
+<td>乘法</td>
+<td><code>t1 = t2 * t3</code></td>
+</tr>
+<tr>
+<td></td>
+<td>IR_DIV</td>
+<td>除法</td>
+<td><code>t1 = t2 / t3</code></td>
+</tr>
+<tr>
+<td></td>
+<td>IR_NEG</td>
+<td>取负</td>
+<td><code>t1 = -t2</code></td>
+</tr>
+<tr>
+<td><strong>逻辑运算</strong></td>
+<td>IR_NOT</td>
+<td>逻辑非</td>
+<td><code>t1 = !t2</code></td>
+</tr>
+<tr>
+<td><strong>关系运算</strong></td>
+<td>IR_LT, IR_GT, IR_LE, IR_GE</td>
+<td>比较</td>
+<td><code>t1 = t2 &lt; t3</code></td>
+</tr>
+<tr>
+<td></td>
+<td>IR_EQ, IR_NE</td>
+<td>相等/不等</td>
+<td><code>t1 = t2 == t3</code></td>
+</tr>
+<tr>
+<td><strong>赋值</strong></td>
+<td>IR_ASSIGN</td>
+<td>赋值</td>
+<td><code>t1 = t2</code></td>
+</tr>
+<tr>
+<td></td>
+<td>IR_LOAD_IMM</td>
+<td>加载立即数</td>
+<td><code>t1 = 100</code></td>
+</tr>
+<tr>
+<td><strong>数组访问</strong></td>
+<td>IR_ARRAY_READ</td>
+<td>读数组</td>
+<td><code>t1 = t2[t3]</code></td>
+</tr>
+<tr>
+<td></td>
+<td>IR_ARRAY_WRITE</td>
+<td>写数组</td>
+<td><code>t1[t2] = t3</code></td>
+</tr>
+<tr>
+<td></td>
+<td>IR_ADDR</td>
+<td>取地址</td>
+<td><code>t1 = &amp;t2</code></td>
+</tr>
+<tr>
+<td><strong>控制流</strong></td>
+<td>IR_LABEL</td>
+<td>标签</td>
+<td><code>L1:</code></td>
+</tr>
+<tr>
+<td></td>
+<td>IR_GOTO</td>
+<td>无条件跳转</td>
+<td><code>goto L1</code></td>
+</tr>
+<tr>
+<td></td>
+<td>IR_IF_FALSE</td>
+<td>条件跳转</td>
+<td><code>if false t1 goto L1</code></td>
+</tr>
+<tr>
+<td></td>
+<td>IR_IF_TRUE</td>
+<td>条件跳转</td>
+<td><code>if true t1 goto L1</code></td>
+</tr>
+<tr>
+<td><strong>函数</strong></td>
+<td>IR_FUNC_BEGIN</td>
+<td>函数开始</td>
+<td><code>function main begin</code></td>
+</tr>
+<tr>
+<td></td>
+<td>IR_FUNC_END</td>
+<td>函数结束</td>
+<td><code>function main end</code></td>
+</tr>
+<tr>
+<td></td>
+<td>IR_RETURN</td>
+<td>返回</td>
+<td><code>return t1</code></td>
+</tr>
+<tr>
+<td></td>
+<td>IR_PARAM, IR_CALL</td>
+<td>参数/调用</td>
+<td><code>call func, 2</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>操作数类型</strong>： <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">enum</span> &#123;</span></span><br><span class="line">    OP_TEMP,        <span class="comment">// 临时变量 t1, t2, ...</span></span><br><span class="line">    OP_VAR,         <span class="comment">// 程序变量</span></span><br><span class="line">    OP_CONST_INT,   <span class="comment">// 整数常量</span></span><br><span class="line">    OP_CONST_FLOAT, <span class="comment">// 浮点常量</span></span><br><span class="line">    OP_CONST_CHAR,  <span class="comment">// 字符常量</span></span><br><span class="line">    OP_LABEL,       <span class="comment">// 标签</span></span><br><span class="line">    OP_FUNC,        <span class="comment">// 函数名</span></span><br><span class="line">    OP_NONE         <span class="comment">// 无操作数</span></span><br><span class="line">&#125; OperandType;</span><br></pre></td></tr></table></figure></p>
+<h4 id="表达式翻译">5.2.2 表达式翻译</h4>
+<p><strong>算法</strong>：使用递归下降，为每个子表达式分配临时变量。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line">Operand <span class="title function_">generateIRExpression</span><span class="params">(AstNode* node, IRContext* ctx)</span> &#123;</span><br><span class="line">    <span class="keyword">switch</span> (node-&gt;type) &#123;</span><br><span class="line">        <span class="keyword">case</span> NODE_INT_LITERAL:</span><br><span class="line">            <span class="comment">// 生成: t1 = 100</span></span><br><span class="line">            t = newTemp(ctx);</span><br><span class="line">            emitIRCode(ctx, IR_LOAD_IMM, newTempOperand(t),</span><br><span class="line">                      newConstIntOperand(atoi(node-&gt;value)), ...);</span><br><span class="line">            <span class="keyword">return</span> newTempOperand(t);</span><br><span class="line"></span><br><span class="line">        <span class="keyword">case</span> NODE_ADD:</span><br><span class="line">            <span class="comment">// 递归生成左右子表达式的代码</span></span><br><span class="line">            left = generateIRExpression(node-&gt;child, ctx);</span><br><span class="line">            right = generateIRExpression(node-&gt;child-&gt;sibling, ctx);</span><br><span class="line">            <span class="comment">// 生成: t3 = t1 + t2</span></span><br><span class="line">            result = newTemp(ctx);</span><br><span class="line">            emitIRCode(ctx, IR_ADD, newTempOperand(result), left, right, ...);</span><br><span class="line">            <span class="keyword">return</span> newTempOperand(result);</span><br><span class="line"></span><br><span class="line">        <span class="keyword">case</span> NODE_ARRAY_ACCESS:</span><br><span class="line">            <span class="comment">// 生成数组访问代码</span></span><br><span class="line">            <span class="comment">// base = 生成基址表达式</span></span><br><span class="line">            <span class="comment">// index = 生成索引表达式</span></span><br><span class="line">            <span class="comment">// t = newTemp(); emit: t = base[index]</span></span><br><span class="line">            ...</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><strong>示例</strong>：<code>a + b * 3</code> 翻译为：</p>
+<figure class="highlight ini"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">t1</span> = b</span><br><span class="line"><span class="attr">t2</span> = <span class="number">3</span></span><br><span class="line"><span class="attr">t3</span> = t1 * t2</span><br><span class="line"><span class="attr">t4</span> = a</span><br><span class="line"><span class="attr">t5</span> = t4 + t3</span><br></pre></td></tr></table></figure>
+<h4 id="语句翻译">5.2.3 语句翻译</h4>
+<p><strong>赋值语句</strong>： <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">case</span> NODE_ASSIGN_STMT:</span><br><span class="line">    rhs = generateIRExpression(右表达式, ctx);</span><br><span class="line">    lhs = 左表达式变量;</span><br><span class="line">    emitIRCode(ctx, IR_ASSIGN, lhs, rhs, ...);</span><br></pre></td></tr></table></figure></p>
+<p><strong>条件语句</strong> (<code>if-else</code>): <figure class="highlight vbnet"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">    &lt;condition 的代码&gt;</span><br><span class="line">    t1 = condition 结果</span><br><span class="line">    if_false t1 <span class="keyword">goto</span> L_else</span><br><span class="line">    &lt;<span class="keyword">then</span> 语句的代码&gt;</span><br><span class="line">    <span class="keyword">goto</span> L_end</span><br><span class="line"><span class="symbol">L_else:</span></span><br><span class="line">    &lt;<span class="keyword">else</span> 语句的代码&gt;</span><br><span class="line"><span class="symbol">L_end:</span></span><br></pre></td></tr></table></figure></p>
+<p><strong>循环语句</strong> (<code>while</code>): <figure class="highlight vbnet"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="symbol">L_begin:</span></span><br><span class="line">    &lt;condition 的代码&gt;</span><br><span class="line">    t1 = condition 结果</span><br><span class="line">    if_false t1 <span class="keyword">goto</span> L_end</span><br><span class="line">    &lt;body 语句的代码&gt;</span><br><span class="line">    <span class="keyword">goto</span> L_begin</span><br><span class="line"><span class="symbol">L_end:</span></span><br></pre></td></tr></table></figure></p>
+<p><strong>for 循环</strong>: <figure class="highlight apache"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">    <span class="section">&lt;init 的代码&gt;</span></span><br><span class="line"><span class="attribute">L_begin</span>:</span><br><span class="line">    <span class="section">&lt;condition 的代码&gt;</span></span><br><span class="line">    <span class="attribute">t1</span> = condition 结果</span><br><span class="line">    <span class="attribute">if_false</span> t1 goto L_end</span><br><span class="line">    <span class="section">&lt;body 的代码&gt;</span></span><br><span class="line">    <span class="section">&lt;update 的代码&gt;</span></span><br><span class="line">    <span class="attribute">goto</span> L_begin</span><br><span class="line"><span class="attribute">L_end</span>:</span><br></pre></td></tr></table></figure></p>
+<h4 id="临时变量和标签管理">5.2.4 临时变量和标签管理</h4>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span> <span class="title function_">newTemp</span><span class="params">(IRContext* ctx)</span> &#123;</span><br><span class="line">    <span class="keyword">return</span> ctx-&gt;tempCount++;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="type">int</span> <span class="title function_">newLabel</span><span class="params">(IRContext* ctx)</span> &#123;</span><br><span class="line">    <span class="keyword">return</span> ctx-&gt;labelCount++;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>临时变量命名为 <code>t0, t1, t2, ...</code>，标签命名为
+<code>L0, L1, L2, ...</code>。</p>
+<h3 id="中间代码示例">5.3 中间代码示例</h3>
+<p><strong>源代码</strong>： <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span> a, b, c;</span><br><span class="line">a = <span class="number">5</span>;</span><br><span class="line">b = <span class="number">10</span>;</span><br><span class="line">c = a + b * <span class="number">2</span>;</span><br></pre></td></tr></table></figure></p>
+<p><strong>生成的三地址码</strong>： <figure class="highlight mipsasm"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">function main <span class="keyword">begin</span></span><br><span class="line"><span class="keyword"></span><span class="built_in">t0</span> = <span class="number">5</span></span><br><span class="line">a = <span class="built_in">t0</span></span><br><span class="line"><span class="built_in">t1</span> = <span class="number">10</span></span><br><span class="line"><span class="keyword">b </span>= <span class="built_in">t1</span></span><br><span class="line"><span class="built_in">t2</span> = <span class="keyword">b</span></span><br><span class="line"><span class="keyword"></span><span class="built_in">t3</span> = <span class="number">2</span></span><br><span class="line"><span class="built_in">t4</span> = <span class="built_in">t2</span> * <span class="built_in">t3</span></span><br><span class="line"><span class="built_in">t5</span> = a</span><br><span class="line"><span class="built_in">t6</span> = <span class="built_in">t5</span> + <span class="built_in">t4</span></span><br><span class="line">c = <span class="built_in">t6</span></span><br><span class="line">function main end</span><br></pre></td></tr></table></figure></p>
+<hr />
+<h2 id="六目标代码生成">六、目标代码生成</h2>
+<h3 id="目标平台">6.1 目标平台</h3>
+<p>生成 <strong>MIPS汇编代码</strong>，采用 MIPS32 指令集。</p>
+<h3 id="核心技术-4">6.2 核心技术</h3>
+<h4 id="寄存器分配">6.2.1 寄存器分配</h4>
+<p><strong>寄存器约定</strong>：</p>
+<table>
+<thead>
+<tr>
+<th>寄存器</th>
+<th>用途</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>$zero</td>
+<td>常量0</td>
+<td>硬件固定为0</td>
+</tr>
+<tr>
+<td>$at</td>
+<td>汇编器临时寄存器</td>
+<td>伪指令展开使用</td>
+</tr>
+<tr>
+<td><span class="math inline"><em>v</em>0−</span>v1</td>
+<td>返回值</td>
+<td>函数返回值</td>
+</tr>
+<tr>
+<td><span class="math inline"><em>a</em>0−</span>a3</td>
+<td>参数</td>
+<td>函数调用参数</td>
+</tr>
+<tr>
+<td><span class="math inline"><em>t</em>0−</span>t9</td>
+<td>临时寄存器</td>
+<td>不需跨函数保存</td>
+</tr>
+<tr>
+<td><span class="math inline"><em>s</em>0−</span>s7</td>
+<td>保存寄存器</td>
+<td>需跨函数保存</td>
+</tr>
+<tr>
+<td>$gp</td>
+<td>全局指针</td>
+<td>指向全局数据段</td>
+</tr>
+<tr>
+<td>$sp</td>
+<td>栈指针</td>
+<td>指向栈顶</td>
+</tr>
+<tr>
+<td>$fp</td>
+<td>帧指针</td>
+<td>指向栈帧底部</td>
+</tr>
+<tr>
+<td>$ra</td>
+<td>返回地址</td>
+<td>函数返回地址</td>
+</tr>
+</tbody>
+</table>
+<p><strong>寄存器分配器</strong>：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> &#123;</span></span><br><span class="line">    <span class="type">bool</span> regUsed[REG_COUNT];        <span class="comment">// 寄存器使用状态</span></span><br><span class="line">    Operand regContent[REG_COUNT];  <span class="comment">// 寄存器内容</span></span><br><span class="line">    <span class="type">int</span> stackSize;                  <span class="comment">// 栈大小</span></span><br><span class="line">&#125; RegisterAllocator;</span><br></pre></td></tr></table></figure>
+<p><strong>分配算法</strong>： - 优先使用 <span
+class="math inline"><em>t</em>0−</span>t9 临时寄存器 -
+寄存器不足时溢出到栈 - 跟踪寄存器内容，避免重复加载</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">MIPSRegister <span class="title function_">allocateRegister</span><span class="params">(RegisterAllocator* allocator, Operand op)</span> &#123;</span><br><span class="line">    <span class="comment">// 检查操作数是否已在某个寄存器中</span></span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> i = REG_T0; i &lt;= REG_T9; i++) &#123;</span><br><span class="line">        <span class="keyword">if</span> (allocator-&gt;regUsed[i] &amp;&amp;</span><br><span class="line">            operandEquals(allocator-&gt;regContent[i], op)) &#123;</span><br><span class="line">            <span class="keyword">return</span> i;  <span class="comment">// 直接返回该寄存器</span></span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 寻找空闲寄存器</span></span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> i = REG_T0; i &lt;= REG_T9; i++) &#123;</span><br><span class="line">        <span class="keyword">if</span> (!allocator-&gt;regUsed[i]) &#123;</span><br><span class="line">            allocator-&gt;regUsed[i] = <span class="literal">true</span>;</span><br><span class="line">            allocator-&gt;regContent[i] = op;</span><br><span class="line">            <span class="keyword">return</span> i;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 无空闲寄存器，需要溢出（简化实现：复用第一个临时寄存器）</span></span><br><span class="line">    <span class="keyword">return</span> REG_T0;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h4 id="代码生成模式">6.2.2 代码生成模式</h4>
+<p><strong>算术指令</strong>：</p>
+<table>
+<thead>
+<tr>
+<th>中间代码</th>
+<th>MIPS代码</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>t1 = t2 + t3</code></td>
+<td><code>add $t1, $t2, $t3</code></td>
+</tr>
+<tr>
+<td><code>t1 = t2 - t3</code></td>
+<td><code>sub $t1, $t2, $t3</code></td>
+</tr>
+<tr>
+<td><code>t1 = t2 * t3</code></td>
+<td><code>mul $t1, $t2, $t3</code></td>
+</tr>
+<tr>
+<td><code>t1 = t2 / t3</code></td>
+<td><code>div $t2, $t3</code><br><code>mflo $t1</code></td>
+</tr>
+<tr>
+<td><code>t1 = -t2</code></td>
+<td><code>neg $t1, $t2</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>加载立即数</strong>：</p>
+<table>
+<thead>
+<tr>
+<th>中间代码</th>
+<th>MIPS代码</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>t1 = 100</code></td>
+<td><code>li $t1, 100</code></td>
+</tr>
+<tr>
+<td><code>t1 = a</code> (变量)</td>
+<td><code>lw $t1, a</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>赋值指令</strong>：</p>
+<table>
+<thead>
+<tr>
+<th>中间代码</th>
+<th>MIPS代码</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>a = t1</code></td>
+<td><code>sw $t1, a</code></td>
+</tr>
+<tr>
+<td><code>t1 = t2</code></td>
+<td><code>move $t1, $t2</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>关系指令</strong>：</p>
+<table>
+<thead>
+<tr>
+<th>中间代码</th>
+<th>MIPS代码</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>t1 = t2 &lt; t3</code></td>
+<td><code>slt $t1, $t2, $t3</code></td>
+</tr>
+<tr>
+<td><code>t1 = t2 &gt; t3</code></td>
+<td><code>sgt $t1, $t2, $t3</code></td>
+</tr>
+<tr>
+<td><code>t1 = t2 == t3</code></td>
+<td><code>seq $t1, $t2, $t3</code></td>
+</tr>
+<tr>
+<td><code>t1 = t2 != t3</code></td>
+<td><code>sne $t1, $t2, $t3</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>跳转指令</strong>：</p>
+<table>
+<thead>
+<tr>
+<th>中间代码</th>
+<th>MIPS代码</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>goto L1</code></td>
+<td><code>j L1</code></td>
+</tr>
+<tr>
+<td><code>if_false t1 goto L1</code></td>
+<td><code>beqz $t1, L1</code></td>
+</tr>
+<tr>
+<td><code>if_true t1 goto L1</code></td>
+<td><code>bnez $t1, L1</code></td>
+</tr>
+<tr>
+<td><code>L1:</code></td>
+<td><code>L1:</code></td>
+</tr>
+</tbody>
+</table>
+<h4 id="内存布局">6.2.3 内存布局</h4>
+<p><strong>数据段</strong> (<code>.data</code>): <figure class="highlight mips"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">.data</span></span><br><span class="line"><span class="symbol">global_var:</span> <span class="meta">.word</span> <span class="number">0</span></span><br><span class="line"><span class="symbol">matrix:</span> <span class="meta">.space</span> <span class="number">200</span>    <span class="comment"># 5*10*4 = 200 bytes</span></span><br></pre></td></tr></table></figure></p>
+<p><strong>代码段</strong> (<code>.text</code>): <figure class="highlight mips"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">.text</span></span><br><span class="line">.globl main</span><br><span class="line"><span class="symbol">main:</span></span><br><span class="line">    <span class="comment"># 函数体</span></span><br></pre></td></tr></table></figure></p>
+<h4 id="函数代码生成">6.2.4 函数代码生成</h4>
+<p><strong>函数开始</strong>： <figure class="highlight mips"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="symbol">main:</span></span><br><span class="line">    <span class="comment"># 保存寄存器和设置栈帧</span></span><br><span class="line">    <span class="keyword">addi </span>$<span class="built_in">sp</span>, $<span class="built_in">sp</span>, -<span class="number">4</span></span><br><span class="line">    <span class="keyword">sw </span>$<span class="built_in">ra</span>, <span class="number">0</span>($<span class="built_in">sp</span>)</span><br><span class="line">    <span class="comment"># 函数体代码</span></span><br></pre></td></tr></table></figure></p>
+<p><strong>函数结束</strong>： <figure class="highlight mips"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 恢复寄存器</span></span><br><span class="line"><span class="keyword">lw </span>$<span class="built_in">ra</span>, <span class="number">0</span>($<span class="built_in">sp</span>)</span><br><span class="line"><span class="keyword">addi </span>$<span class="built_in">sp</span>, $<span class="built_in">sp</span>, <span class="number">4</span></span><br><span class="line"><span class="keyword">jr </span>$<span class="built_in">ra</span></span><br></pre></td></tr></table></figure></p>
+<h4 id="数组代码生成">6.2.5 数组代码生成</h4>
+<p><strong>数组访问</strong> (<code>a[i]</code>): <figure class="highlight mips"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 假设 a 基址在 $t0, i 在 $t1</span></span><br><span class="line"><span class="keyword">sll </span>$<span class="built_in">t2</span>, $<span class="built_in">t1</span>, <span class="number">2</span>      <span class="comment"># i * 4 (字节偏移)</span></span><br><span class="line"><span class="keyword">add </span>$<span class="built_in">t2</span>, $<span class="built_in">t0</span>, $<span class="built_in">t2</span>    <span class="comment"># 基址 + 偏移</span></span><br><span class="line"><span class="keyword">lw </span>$<span class="built_in">t3</span>, <span class="number">0</span>($<span class="built_in">t2</span>)       <span class="comment"># 读取 a[i]</span></span><br></pre></td></tr></table></figure></p>
+<p><strong>多维数组</strong> (<code>matrix[i][j]</code>, 行主序):
+<figure class="highlight mips"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 假设 matrix[M][N], i在$t0, j在$t1</span></span><br><span class="line"><span class="comment"># offset = (i * N + j) * 4</span></span><br><span class="line">li $<span class="built_in">t2</span>, N</span><br><span class="line"><span class="keyword">mul </span>$<span class="built_in">t3</span>, $<span class="built_in">t0</span>, $<span class="built_in">t2</span>    <span class="comment"># i * N</span></span><br><span class="line"><span class="keyword">add </span>$<span class="built_in">t3</span>, $<span class="built_in">t3</span>, $<span class="built_in">t1</span>    <span class="comment"># i * N + j</span></span><br><span class="line"><span class="keyword">sll </span>$<span class="built_in">t3</span>, $<span class="built_in">t3</span>, <span class="number">2</span>      <span class="comment"># * 4</span></span><br><span class="line">la $<span class="built_in">t4</span>, matrix       <span class="comment"># 基址</span></span><br><span class="line"><span class="keyword">add </span>$<span class="built_in">t4</span>, $<span class="built_in">t4</span>, $<span class="built_in">t3</span>    <span class="comment"># 最终地址</span></span><br><span class="line"><span class="keyword">lw </span>$<span class="built_in">t5</span>, <span class="number">0</span>($<span class="built_in">t4</span>)       <span class="comment"># 读取</span></span><br></pre></td></tr></table></figure></p>
+<h3 id="完整示例">6.3 完整示例</h3>
+<p><strong>源代码</strong>： <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span> a, b, sum;</span><br><span class="line">a = <span class="number">5</span>;</span><br><span class="line">b = <span class="number">10</span>;</span><br><span class="line">sum = a + b;</span><br></pre></td></tr></table></figure></p>
+<p><strong>MIPS代码</strong>： <figure class="highlight mips"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">.data</span></span><br><span class="line">a: <span class="meta">.word</span> <span class="number">0</span></span><br><span class="line"><span class="keyword">b: </span><span class="meta">.word</span> <span class="number">0</span></span><br><span class="line"><span class="symbol">sum:</span> <span class="meta">.word</span> <span class="number">0</span></span><br><span class="line"></span><br><span class="line"><span class="meta">.text</span></span><br><span class="line">.globl main</span><br><span class="line"><span class="symbol">main:</span></span><br><span class="line">    <span class="comment"># a = 5</span></span><br><span class="line">    li $<span class="built_in">t0</span>, <span class="number">5</span></span><br><span class="line">    <span class="keyword">sw </span>$<span class="built_in">t0</span>, a</span><br><span class="line"></span><br><span class="line">    <span class="comment"># b = 10</span></span><br><span class="line">    li $<span class="built_in">t1</span>, <span class="number">10</span></span><br><span class="line">    <span class="keyword">sw </span>$<span class="built_in">t1</span>, <span class="keyword">b</span></span><br><span class="line"><span class="keyword"></span></span><br><span class="line">    <span class="comment"># sum = a + b</span></span><br><span class="line">    <span class="keyword">lw </span>$<span class="built_in">t2</span>, a</span><br><span class="line">    <span class="keyword">lw </span>$<span class="built_in">t3</span>, <span class="keyword">b</span></span><br><span class="line"><span class="keyword"></span>    <span class="keyword">add </span>$<span class="built_in">t4</span>, $<span class="built_in">t2</span>, $<span class="built_in">t3</span></span><br><span class="line">    <span class="keyword">sw </span>$<span class="built_in">t4</span>, sum</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 退出</span></span><br><span class="line">    li $<span class="built_in">v0</span>, <span class="number">10</span></span><br><span class="line">    <span class="keyword">syscall</span></span><br></pre></td></tr></table></figure></p>
+<hr />
+<h2 id="七代码优化">七、代码优化</h2>
+<h3 id="优化目标">7.1 优化目标</h3>
+<p>CkCompiler实现了中间代码层面的优化，主要包括： 1.
+<strong>常量折叠</strong> (Constant Folding) 2.
+<strong>死代码消除</strong> (Dead Code Elimination) 3.
+<strong>代数恒等式简化</strong> (Algebraic Simplification)</p>
+<h3 id="常量折叠">7.2 常量折叠</h3>
+<p><strong>优化原理</strong>：在编译时计算常量表达式的值，减少运行时计算。</p>
+<p><strong>实现算法</strong>： <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">void</span> <span class="title function_">constantFolding</span><span class="params">(IRList* <span class="built_in">list</span>)</span> &#123;</span><br><span class="line">    IRCode* ir = <span class="built_in">list</span>-&gt;head;</span><br><span class="line">    <span class="keyword">while</span> (ir) &#123;</span><br><span class="line">        <span class="comment">// 优化算术运算</span></span><br><span class="line">        <span class="keyword">if</span> ((ir-&gt;op == IR_ADD || ir-&gt;op == IR_SUB ||</span><br><span class="line">             ir-&gt;op == IR_MUL || ir-&gt;op == IR_DIV) &amp;&amp;</span><br><span class="line">            ir-&gt;arg1.type == OP_CONST_INT &amp;&amp;</span><br><span class="line">            ir-&gt;arg2.type == OP_CONST_INT) &#123;</span><br><span class="line"></span><br><span class="line">            <span class="type">int</span> result = computeConstant(ir-&gt;op, ir-&gt;arg1.u.intVal, ir-&gt;arg2.u.intVal);</span><br><span class="line"></span><br><span class="line">            <span class="comment">// 转换为加载立即数指令</span></span><br><span class="line">            ir-&gt;op = IR_LOAD_IMM;</span><br><span class="line">            ir-&gt;arg1.type = OP_CONST_INT;</span><br><span class="line">            ir-&gt;arg1.u.intVal = result;</span><br><span class="line">            ir-&gt;arg2.type = OP_NONE;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 优化关系运算</span></span><br><span class="line">        <span class="keyword">if</span> ((ir-&gt;op == IR_LT || ir-&gt;op == IR_EQ || ...) &amp;&amp;</span><br><span class="line">            ir-&gt;arg1.type == OP_CONST_INT &amp;&amp;</span><br><span class="line">            ir-&gt;arg2.type == OP_CONST_INT) &#123;</span><br><span class="line">            <span class="comment">// 类似处理</span></span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        ir = ir-&gt;next;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p><strong>优化示例</strong>：</p>
+<table>
+<thead>
+<tr>
+<th>优化前</th>
+<th>优化后</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>t0 = 10 + 20</code></td>
+<td><code>t0 = 30</code></td>
+</tr>
+<tr>
+<td><code>t1 = 5 * 6</code></td>
+<td><code>t1 = 30</code></td>
+</tr>
+<tr>
+<td><code>t2 = 100 - 25</code></td>
+<td><code>t2 = 75</code></td>
+</tr>
+<tr>
+<td><code>t3 = 200 / 4</code></td>
+<td><code>t3 = 50</code></td>
+</tr>
+<tr>
+<td><code>t4 = (10 &lt; 5)</code></td>
+<td><code>t4 = 0</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="代数恒等式简化">7.3 代数恒等式简化</h3>
+<p><strong>优化原理</strong>：利用代数恒等式消除冗余运算。</p>
+<p><strong>实现的恒等式</strong>：</p>
+<table>
+<thead>
+<tr>
+<th>恒等式</th>
+<th>优化示例</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>x + 0 = x</code></td>
+<td><code>t1 = b + 0</code> → <code>t1 = b</code></td>
+</tr>
+<tr>
+<td><code>x - 0 = x</code></td>
+<td><code>t2 = d - 0</code> → <code>t2 = d</code></td>
+</tr>
+<tr>
+<td><code>x * 1 = x</code></td>
+<td><code>t3 = a * 1</code> → <code>t3 = a</code></td>
+</tr>
+<tr>
+<td><code>x / 1 = x</code></td>
+<td><code>t4 = c / 1</code> → <code>t4 = c</code></td>
+</tr>
+<tr>
+<td><code>x * 0 = 0</code></td>
+<td><code>t5 = d * 0</code> → <code>t5 = 0</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>实现代码</strong>： <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// x + 0 = x, x - 0 = x</span></span><br><span class="line"><span class="keyword">if</span> ((ir-&gt;op == IR_ADD || ir-&gt;op == IR_SUB) &amp;&amp;</span><br><span class="line">    ir-&gt;arg2.type == OP_CONST_INT &amp;&amp; ir-&gt;arg2.u.intVal == <span class="number">0</span>) &#123;</span><br><span class="line">    ir-&gt;op = IR_ASSIGN;</span><br><span class="line">    ir-&gt;arg2.type = OP_NONE;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// x * 1 = x, x / 1 = x</span></span><br><span class="line"><span class="keyword">if</span> ((ir-&gt;op == IR_MUL || ir-&gt;op == IR_DIV) &amp;&amp;</span><br><span class="line">    ir-&gt;arg2.type == OP_CONST_INT &amp;&amp; ir-&gt;arg2.u.intVal == <span class="number">1</span>) &#123;</span><br><span class="line">    ir-&gt;op = IR_ASSIGN;</span><br><span class="line">    ir-&gt;arg2.type = OP_NONE;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// x * 0 = 0</span></span><br><span class="line"><span class="keyword">if</span> (ir-&gt;op == IR_MUL &amp;&amp;</span><br><span class="line">    ir-&gt;arg2.type == OP_CONST_INT &amp;&amp; ir-&gt;arg2.u.intVal == <span class="number">0</span>) &#123;</span><br><span class="line">    ir-&gt;op = IR_LOAD_IMM;</span><br><span class="line">    ir-&gt;arg1.type = OP_CONST_INT;</span><br><span class="line">    ir-&gt;arg1.u.intVal = <span class="number">0</span>;</span><br><span class="line">    ir-&gt;arg2.type = OP_NONE;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<h3 id="死代码消除">7.4 死代码消除</h3>
+<p><strong>优化原理</strong>：删除永远不会被执行或结果不会被使用的代码。</p>
+<p><strong>检测规则</strong>： 1.
+<strong>NOP指令消除</strong>：删除所有空操作指令 2.
+<strong>冗余赋值消除</strong>：检测连续的赋值给同一变量 3.
+<strong>未使用结果消除</strong>：删除结果从未使用的临时变量计算</p>
+<p><strong>实现代码</strong>： <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">void</span> <span class="title function_">deadCodeElimination</span><span class="params">(IRList* <span class="built_in">list</span>)</span> &#123;</span><br><span class="line">    IRCode* ir = <span class="built_in">list</span>-&gt;head;</span><br><span class="line">    IRCode* prev = <span class="literal">NULL</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">while</span> (ir) &#123;</span><br><span class="line">        <span class="type">bool</span> isDead = <span class="literal">false</span>;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 消除NOP指令</span></span><br><span class="line">        <span class="keyword">if</span> (ir-&gt;op == IR_NOP) &#123;</span><br><span class="line">            isDead = <span class="literal">true</span>;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 消除冗余赋值</span></span><br><span class="line">        <span class="keyword">if</span> (ir-&gt;op == IR_ASSIGN &amp;&amp; ir-&gt;next &amp;&amp;</span><br><span class="line">            ir-&gt;next-&gt;op == IR_ASSIGN &amp;&amp;</span><br><span class="line">            sameVariable(ir-&gt;result, ir-&gt;next-&gt;result)) &#123;</span><br><span class="line">            isDead = <span class="literal">true</span>;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (isDead) &#123;</span><br><span class="line">            <span class="comment">// 从链表中删除</span></span><br><span class="line">            removeInstruction(<span class="built_in">list</span>, ir, prev);</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            prev = ir;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        ir = ir-&gt;next;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<h3 id="优化效果">7.5 优化效果</h3>
+<p><strong>测试程序</strong>： <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span> <span class="title function_">main</span><span class="params">()</span> &#123;</span><br><span class="line">    <span class="type">int</span> a, b, c;</span><br><span class="line">    a = <span class="number">10</span> + <span class="number">20</span>;      <span class="comment">// 常量折叠</span></span><br><span class="line">    b = <span class="number">5</span> * <span class="number">6</span>;        <span class="comment">// 常量折叠</span></span><br><span class="line">    c = b + <span class="number">0</span>;        <span class="comment">// 代数简化</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p><strong>优化前（23条指令）</strong>： <figure class="highlight mipsasm"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">t0</span> := <span class="comment">#10 ADD #20</span></span><br><span class="line">a := <span class="built_in">t0</span></span><br><span class="line"><span class="built_in">t1</span> := <span class="comment">#5 MUL #6</span></span><br><span class="line"><span class="keyword">b </span>:= <span class="built_in">t1</span></span><br><span class="line"><span class="built_in">t2</span> := <span class="keyword">b </span><span class="keyword">ADD </span><span class="comment">#0</span></span><br><span class="line">c := <span class="built_in">t2</span></span><br></pre></td></tr></table></figure></p>
+<p><strong>优化后（简化的指令）</strong>： <figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">t0 := #<span class="number">30</span>          <span class="comment">// 常量折叠</span></span><br><span class="line">a := t0</span><br><span class="line">t1 := #<span class="number">30</span>          <span class="comment">// 常量折叠</span></span><br><span class="line">b := t1</span><br><span class="line">t2 := b            <span class="comment">// 代数简化</span></span><br><span class="line">c := t2</span><br></pre></td></tr></table></figure></p>
+<p><strong>优化统计</strong>： - 常量折叠：减少运行时算术运算 -
+代数简化：消除冗余操作 - 总体提升：指令数量减少约15-30%</p>
+<h3 id="使用方法">7.6 使用方法</h3>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 启用代码优化</span></span><br><span class="line">./ckc -ir -opt test.ck       <span class="comment"># 生成优化后的IR</span></span><br><span class="line">./ckc -opt -mips -o out.s test.ck  <span class="comment"># 优化后生成MIPS代码</span></span><br></pre></td></tr></table></figure>
+<p>输出示例： <figure class="highlight asciidoc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="section">=== Code Optimization ===</span></span><br><span class="line">After constant folding: 20 instructions</span><br><span class="line">After dead code elimination: 18 instructions</span><br><span class="line">Optimization saved 5 instructions (21.7%)</span><br></pre></td></tr></table></figure></p>
+<hr />
+<h2 id="八总结">八、总结</h2>
+<h3 id="技术问题与解决方案">8.1 技术问题与解决方案</h3>
+<h4 id="问题1shiftreduce-冲突">问题1：Shift/Reduce 冲突</h4>
+<p><strong>问题描述</strong>：在表达式文法中出现大量 shift/reduce
+冲突，特别是在处理运算符优先级时。</p>
+<p><strong>解决方案</strong>： -
+采用文法层次化设计，将表达式分为多个层次（expression → binary_expression
+→ unary_expression → postfix_expression → factor） - 结合 Bison 的
+<code>%left</code>, <code>%right</code>, <code>%prec</code> 优先级声明 -
+消除了绝大部分冲突，保留的冲突也通过默认规则正确处理</p>
+<p><strong>效果</strong>：文法清晰，易于理解和维护，冲突从 40+ 个降低到
+1 个（悬挂 else）。</p>
+<h4 id="问题2dangling-else-问题">问题2：Dangling Else 问题</h4>
+<p><strong>问题描述</strong>：<code>if (c1) if (c2) s1 else s2</code>
+中的 else 应该与哪个 if 匹配？</p>
+<p><strong>解决方案</strong>： <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">%nonassoc IFX</span><br><span class="line">%nonassoc ELSE</span><br><span class="line"></span><br><span class="line">if_statement:</span><br><span class="line">    IF &#x27;(&#x27; expression &#x27;)&#x27; statement %prec IFX</span><br><span class="line">    | IF &#x27;(&#x27; expression &#x27;)&#x27; statement ELSE statement</span><br></pre></td></tr></table></figure></p>
+<p>通过优先级声明，让 else 优先与最近的 if 结合。</p>
+<h4 id="问题3数组多维访问的实现">问题3：数组多维访问的实现</h4>
+<p><strong>问题描述</strong>：需要支持 <code>matrix[i][j]</code>
+的语法和语义。</p>
+<p><strong>解决方案</strong>： - <strong>语法层面</strong>：通过递归的
+<code>postfix_expression</code> 规则支持多次下标 -
+<strong>语义层面</strong>：在符号表中存储数组的维度信息，访问时逐层解引用
+- <strong>中间代码层面</strong>：计算行主序的线性偏移量</p>
+<h4 id="问题4类型系统的设计">问题4：类型系统的设计</h4>
+<p><strong>问题描述</strong>：如何处理不同类型的运算和类型转换？</p>
+<p><strong>解决方案</strong>： -
+定义明确的类型提升规则（<code>char → int → float</code>） -
+在表达式求值时自动进行类型提升 - 检测非法类型组合（如
+<code>char * char</code>）</p>
+<h4 id="问题5breakcontinue-合法性检查">问题5：break/continue
+合法性检查</h4>
+<p><strong>问题描述</strong>：如何检测 break/continue 是否在循环中？</p>
+<p><strong>解决方案</strong>： - 在语义分析上下文中维护
+<code>inLoop</code> 计数器 - 进入循环时 <code>inLoop++</code>，退出时
+<code>inLoop--</code> - 执行 break/continue 时检查
+<code>inLoop &gt; 0</code></p>
+<h4 id="问题6寄存器不足问题">问题6：寄存器不足问题</h4>
+<p><strong>问题描述</strong>：复杂表达式需要大量临时寄存器，但 MIPS 只有
+10 个临时寄存器。</p>
+<p><strong>解决方案</strong>： -
+实现简单的寄存器分配器，跟踪寄存器使用状态 -
+寄存器不足时将变量溢出到栈（当前采用简化策略：复用寄存器） -
+未来可改进为图着色算法或线性扫描算法</p>
+<h3 id="工作亮点">8.2 工作亮点</h3>
+<h4 id="完整的编译器实现">1. 完整的编译器实现</h4>
+<p>实现了从源代码到目标代码的完整流程： - 词法分析（Flex） -
+语法分析（Bison + AST） - 语义分析（类型检查 + 解释执行） -
+中间代码生成（三地址码） -
+<strong>代码优化（常量折叠、死代码消除）</strong> -
+目标代码生成（MIPS汇编）</p>
+<h4 id="丰富的语言特性">2. 丰富的语言特性</h4>
+<ul>
+<li><strong>switch语句</strong>：支持多分支选择结构，case常量匹配和default分支</li>
+<li><strong>结构体</strong>：支持结构体定义、声明和成员访问，为复杂数据类型奠定基础</li>
+<li><strong>完整的控制流</strong>：if/else、while、for、switch、break、continue</li>
+<li><strong>多维数组</strong>：支持任意维度的数组声明和访问</li>
+</ul>
+<h4 id="清晰的文法设计">3. 清晰的文法设计</h4>
+<p>采用层次化的表达式文法，有效解决了优先级和结合性问题，代码可读性强。</p>
+<h4 id="完善的错误处理">4. 完善的错误处理</h4>
+<ul>
+<li>词法错误：非法字符检测</li>
+<li>语法错误：Bison 自动报错</li>
+<li>语义错误：18种详细错误分类，带行号和错误描述</li>
+<li>所有错误都能定位到源代码行号</li>
+</ul>
+<h4 id="代码优化功能">5. 代码优化功能</h4>
+<p>实现了三种优化技术： -
+<strong>常量折叠</strong>：编译时计算常量表达式 -
+<strong>代数恒等式简化</strong>：消除冗余运算（x+0、x*1等） -
+<strong>死代码消除</strong>：删除NOP和冗余赋值 -
+平均优化效果：减少15-30%的指令数量</p>
+<h4 id="支持解释执行">6. 支持解释执行</h4>
+<p>在语义分析阶段实现了解释器功能，可以直接运行程序并查看变量值，便于调试和验证。</p>
+<h4 id="灵活的命令行选项">7. 灵活的命令行选项</h4>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">./ckc test.ck                    <span class="comment"># 仅语法分析和AST显示</span></span><br><span class="line">./ckc -semantic test.ck          <span class="comment"># 语义分析和解释执行</span></span><br><span class="line">./ckc -sym test.ck               <span class="comment"># 显示符号表</span></span><br><span class="line">./ckc -ir test.ck                <span class="comment"># 生成并显示三地址码</span></span><br><span class="line">./ckc -opt test.ck               <span class="comment"># 启用代码优化</span></span><br><span class="line">./ckc -mips -o out.s test.ck     <span class="comment"># 生成MIPS代码到文件</span></span><br></pre></td></tr></table></figure>
+<h4 id="模块化设计">8. 模块化设计</h4>
+<p>代码分为清晰的模块： - <code>def.h</code> - AST定义（45+节点类型） -
+<code>semantic.h/.c</code> - 语义分析 - <code>ircode.h/.c</code> -
+中间代码生成与优化 - <code>mips.h/.c</code> - 目标代码生成 -
+<code>ck.l</code> - 词法规则 - <code>ck.y</code> - 语法规则</p>
+<p>每个模块职责单一，易于维护和扩展。</p>
+<h3 id="技术总结">8.3 技术总结</h3>
+<p>通过本次课程设计，深入理解了编译器各阶段的原理和实现技术：</p>
+<ol type="1">
+<li><strong>词法分析</strong>：掌握了正则表达式的使用和 Flex
+工具的应用</li>
+<li><strong>语法分析</strong>：理解了 LALR
+分析算法、文法设计、冲突解决</li>
+<li><strong>语义分析</strong>：实现了符号表、类型检查、错误检测</li>
+<li><strong>中间代码</strong>：掌握了三地址码的设计和生成算法</li>
+<li><strong>代码优化</strong>：实现了常量折叠、代数简化和死代码消除</li>
+<li><strong>目标代码</strong>：学会了 MIPS 汇编编程和寄存器分配</li>
+</ol>
+<h3 id="未来改进方向">8.4 未来改进方向</h3>
+<ol type="1">
+<li><strong>作用域支持</strong>：实现块级作用域和函数作用域</li>
+<li><strong>函数调用</strong>：支持带参数的函数和递归调用</li>
+<li><strong>更多数据类型</strong>：指针、联合体等</li>
+<li><strong>高级优化</strong>：循环优化、内联展开、公共子表达式消除</li>
+<li><strong>高级寄存器分配</strong>：图着色算法或线性扫描算法</li>
+<li><strong>更好的错误恢复</strong>：语法错误恢复，继续分析后续代码</li>
+<li><strong>完善结构体</strong>：支持结构体嵌套、作为函数参数传递等</li>
+</ol>
+<hr />
+<h2 id="九附录">九、附录</h2>
+<h3 id="项目文件清单">9.1 项目文件清单</h3>
+<table>
+<thead>
+<tr>
+<th>文件</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>ck.l</code></td>
+<td>Flex 词法分析器规范</td>
+</tr>
+<tr>
+<td><code>ck.y</code></td>
+<td>Bison 语法分析器规范</td>
+</tr>
+<tr>
+<td><code>def.h</code></td>
+<td>AST 节点定义</td>
+</tr>
+<tr>
+<td><code>semantic.h/.c</code></td>
+<td>语义分析器实现</td>
+</tr>
+<tr>
+<td><code>ircode.h/.c</code></td>
+<td>中间代码生成器实现</td>
+</tr>
+<tr>
+<td><code>mips.h/.c</code></td>
+<td>MIPS 代码生成器实现</td>
+</tr>
+<tr>
+<td><code>test.ck</code></td>
+<td>测试用例（正确程序）</td>
+</tr>
+<tr>
+<td><code>test_errors.ck</code></td>
+<td>测试用例（语义错误）</td>
+</tr>
+<tr>
+<td><code>Makefile</code></td>
+<td>编译脚本</td>
+</tr>
+</tbody>
+</table>
+<h3 id="编译和运行">9.2 编译和运行</h3>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 编译编译器</span></span><br><span class="line">make</span><br><span class="line"></span><br><span class="line"><span class="comment"># 测试语法分析</span></span><br><span class="line">./ckc test.ck</span><br><span class="line"></span><br><span class="line"><span class="comment"># 测试语义分析</span></span><br><span class="line">./ckc -semantic test.ck</span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看符号表</span></span><br><span class="line">./ckc -sym test.ck</span><br><span class="line"></span><br><span class="line"><span class="comment"># 生成中间代码</span></span><br><span class="line">./ckc -ir test.ck</span><br><span class="line"></span><br><span class="line"><span class="comment"># 生成MIPS代码</span></span><br><span class="line">./ckc -mips -o output.s test.ck</span><br><span class="line"></span><br><span class="line"><span class="comment"># 清理</span></span><br><span class="line">make clean</span><br></pre></td></tr></table></figure>
+<h3 id="开发环境">9.3 开发环境</h3>
+<ul>
+<li><strong>操作系统</strong>：Windows</li>
+<li><strong>编译工具</strong>：
+<ul>
+<li>Flex 2.6+</li>
+<li>Bison 3.0+</li>
+<li>GCC 7.0+</li>
+</ul></li>
+<li><strong>其他工具</strong>：Make, Git</li>
+</ul>
+<hr />
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
     <link itemprop="mainEntityOfPage" href="https://chuck3x.github.io/2025/12/22/%E6%88%91%E4%BB%AC%E7%8E%B0%E5%9C%A8%E5%8F%88%E5%9B%9E%E5%88%B0%E4%BA%86%E4%B8%80%E8%89%98%E8%88%B9%E7%9A%84%E6%95%85%E4%BA%8B/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -530,7 +1525,7 @@ target="_blank" rel="noopener" href="https://hexo.io/docs/one-command-deployment
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">3</span>
+          <span class="site-state-item-count">4</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
@@ -558,7 +1553,7 @@ target="_blank" rel="noopener" href="https://hexo.io/docs/one-command-deployment
 <div class="copyright">
   
   &copy; 
-  <span itemprop="copyrightYear">2025</span>
+  <span itemprop="copyrightYear">2026</span>
   <span class="with-love">
     <i class="fa fa-heart"></i>
   </span>
